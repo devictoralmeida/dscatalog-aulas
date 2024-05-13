@@ -1,0 +1,7 @@
+
+ª
+java:S1104"bMake DEPOSIT_FEE_PERCENTAGE a static final constant or non-public and provide accessors if needed.(Ýš—ˆúÿÿÿÿ8±ÄùÃõ1J$8f498d1b-4aaa-4720-aa09-39680425c830
+„
+java:S1444"<Make this "public static DEPOSIT_FEE_PERCENTAGE" field final(Ýš—ˆúÿÿÿÿ8±ÄùÃõ1J$46d37716-b502-4f52-b97d-f234032283bd
+©
+java:S3008"aRename this field "DEPOSIT_FEE_PERCENTAGE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ýš—ˆúÿÿÿÿ8½ÄùÃõ1J$77569b43-2136-4b41-8cc1-263cf32ba79f

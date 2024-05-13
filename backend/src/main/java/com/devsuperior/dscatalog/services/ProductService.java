@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.services;
 
+import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.ProductDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
@@ -13,13 +14,15 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(PageRequest page) {
+    public Page<ProductDTO> findAllPaged(Pageable page) {
         return repository.findAll(page).map(products -> ProductMapperToDTO.converter(products, true));
     }
 
@@ -79,13 +82,17 @@ public class ProductService {
 
 
     private Set<Category> getCategoriesList(ProductDTO payload) {
-        Set<Category> listaCategorias = new HashSet<>();
+        Set<Long> categoryIds = payload.getCategories().stream()
+                .map(CategoryDTO::getId)
+                .collect(Collectors.toSet());
+        List<Category> foundCategories = categoryRepository.findAllById(categoryIds);
 
-        payload.getCategories().forEach(category -> {
-            Category cat = categoryRepository.findById(category.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
-            listaCategorias.add(cat);
-        });
+        if (foundCategories.size() != categoryIds.size()) {
+            categoryIds.removeAll(foundCategories.stream().map(Category::getId).collect(Collectors.toSet()));
+            throw new ResourceNotFoundException("Categoria(s) de id(s) " + categoryIds + " não encontrada(s)");
+        }
 
-        return listaCategorias;
+        return new HashSet<>(foundCategories);
     }
+
 }
