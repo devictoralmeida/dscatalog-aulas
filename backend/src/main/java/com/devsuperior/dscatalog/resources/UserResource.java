@@ -1,9 +1,10 @@
 package com.devsuperior.dscatalog.resources;
 
-import com.devsuperior.dscatalog.dto.request.UserRequestDTO;
 import com.devsuperior.dscatalog.dto.request.UserRequestInsertDTO;
+import com.devsuperior.dscatalog.dto.request.UserRequestUpdateDTO;
 import com.devsuperior.dscatalog.dto.response.UserResponseDTO;
 import com.devsuperior.dscatalog.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,14 +37,14 @@ public class UserResource {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> save(@RequestBody UserRequestInsertDTO payload) {
+    public ResponseEntity<UserResponseDTO> save(@Valid @RequestBody UserRequestInsertDTO payload) {
         UserResponseDTO response = service.save(payload);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody UserRequestDTO payload) {
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserRequestUpdateDTO payload) {
         return ResponseEntity.ok().body(service.update(id, payload));
     }
 

@@ -99,3 +99,17 @@ u
 Ebackend/src/main/java/com/devsuperior/dscatalog/config/AppConfig.java,e\6\e604f625d79b93a48d4775db65afcf46a6b1dc75
 z
 Jbackend/src/main/java/com/devsuperior/dscatalog/config/SecurityConfig.java,9\0\90404282227ca06016d6b5224cb4857a0e5d8ea6
+†
+Vbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/FieldMessage.java,7\3\734897a36296a6091d6d944f455c46f304c87e03
+‰
+Ybackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ValidationError.java,9\d\9dc5db7923eae002f37505b5566d1aee141243df
+ˆ
+Xbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValid.java,1\d\1de5f94513b36a84d6c60dd1e2bc56b4efe693fb
+Œ
+\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValidator.java,a\5\a57e6fd1f10b9be83aff26cf60f60a00cd4a0397
+ˆ
+Xbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValid.java,d\6\d6f76ea172c89bd9cd74ceaf1048d24187f52dca
+Œ
+\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java,e\d\ed1af5418afccb55c476b78cd53c5d7bcde5f81b
+…
+Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
