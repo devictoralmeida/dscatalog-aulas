@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.services;
 
+import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.factory.Factory;
@@ -105,7 +106,7 @@ class ProductServiceTests {
     @Test
     void find_all_paged_should_return_page() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductDTO> result = service.findAllPaged(pageable);
+        Page<ProductResponseDTO> result = service.findAllPaged(pageable);
 
         // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x
         assertNotNull(result);
@@ -114,7 +115,7 @@ class ProductServiceTests {
 
     @Test
     void find_by_id_should_return_productDTO_when_id_exists() {
-        ProductDTO result = service.findById(existingId);
+        ProductResponseDTO result = service.findById(existingId);
 
         // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x
         assertNotNull(result);
@@ -130,7 +131,7 @@ class ProductServiceTests {
 
     @Test
     void update_should_return_productDTO_when_id_exists() {
-        ProductDTO result = service.update(existingId, Factory.createProductDTO());
+        ProductResponseDTO result = service.update(existingId, Factory.createProductRequestDTO());
 
         // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x
         assertNotNull(result);
@@ -141,7 +142,7 @@ class ProductServiceTests {
     @Test
     void update_should_throw_ResourceNotFoundException_when_id_does_not_exist() {
         assertThrows(ResourceNotFoundException.class, () -> {
-            service.update(nonExistingId, Factory.createProductDTO());
+            service.update(nonExistingId, Factory.createProductRequestDTO());
         });
     }
 }

@@ -44,6 +44,10 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDTO update(Long id, CategoryRequestDTO payload) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Categoria de id " + id + "não encontrada");
+        }
+
         try {
             Category entity = repository.getReferenceById(id);
             CategoryMapperToModel.updateFromDto(entity, payload);

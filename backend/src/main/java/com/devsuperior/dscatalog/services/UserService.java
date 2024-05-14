@@ -60,6 +60,10 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserResponseDTO update(Long id, UserRequestUpdateDTO payload) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário de id " + id + "não encontrado");
+        }
+
         try {
             User entity = repository.getReferenceById(id);
             Set<Role> roles = getRolesList(payload);

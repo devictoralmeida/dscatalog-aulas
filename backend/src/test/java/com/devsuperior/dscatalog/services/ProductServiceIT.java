@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.services;
 
+import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ class ProductServiceIT {
     @Test
     void findAllPagedShouldReturnPageWhenPage0Size10() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<ProductDTO> result = service.findAllPaged(pageRequest);
+        Page<ProductResponseDTO> result = service.findAllPaged(pageRequest);
 
         assertFalse(result.isEmpty());
         assertEquals(0, result.getNumber()); // Testando número da página
@@ -61,14 +62,14 @@ class ProductServiceIT {
     @Test
     void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExist() {
         PageRequest pageRequest = PageRequest.of(50, 10);
-        Page<ProductDTO> result = service.findAllPaged(pageRequest);
+        Page<ProductResponseDTO> result = service.findAllPaged(pageRequest);
         assertTrue(result.isEmpty());
     }
 
     @Test
     void findAllPagedShouldReturnSortedPageWhenSortByName() {
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
-        Page<ProductDTO> result = service.findAllPaged(pageRequest);
+        Page<ProductResponseDTO> result = service.findAllPaged(pageRequest);
 
         assertFalse(result.isEmpty());
         assertEquals("Macbook Pro", result.getContent().get(0).getName());

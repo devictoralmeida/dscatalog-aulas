@@ -12,8 +12,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponseDTO implements Serializable {
@@ -25,6 +25,7 @@ public class ProductResponseDTO implements Serializable {
     private String description;
     private Double price;
     private String imgUrl;
+
     private Instant date;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

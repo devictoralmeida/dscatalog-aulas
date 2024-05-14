@@ -49,6 +49,10 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDTO update(Long id, ProductRequestDTO payload) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto de id " + id + "não encontrado");
+        }
+
         try {
             Product entity = repository.getReferenceById(id);
             Set<Category> listaCategorias = getCategoriesList(payload);
