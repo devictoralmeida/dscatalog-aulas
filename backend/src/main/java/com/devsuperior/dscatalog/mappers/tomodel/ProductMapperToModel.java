@@ -1,27 +1,25 @@
 package com.devsuperior.dscatalog.mappers.tomodel;
 
-import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.dto.request.ProductRequestDTO;
+import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.mappers.BaseMapper;
 
-import java.util.stream.Collectors;
+import java.util.Set;
 
 public class ProductMapperToModel extends BaseMapper {
     private ProductMapperToModel() {
     }
 
-    public static Product converter(ProductDTO dto) {
+    public static Product converter(ProductRequestDTO dto, Set<Category> categories) {
         Product entity = mapProperties(dto, new Product(), "categories");
-        entity.setCategories(dto.getCategories().stream()
-                .map(CategoryMapperToModel::converter)
-                .collect(Collectors.toSet()));
+        entity.getCategories().addAll(categories);
         return entity;
     }
 
-    public static void updateFromDto(Product entity, ProductDTO dto) {
+    public static void updateFromDto(Product entity, ProductRequestDTO dto, Set<Category> categories) {
         mapProperties(dto, entity, "categories", "id");
         entity.getCategories().clear();
-        dto.getCategories().forEach(category ->
-                entity.addCategory(CategoryMapperToModel.converter(category)));
+        entity.getCategories().addAll(categories);
     }
 }

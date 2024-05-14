@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.resources;
 
-import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.dto.request.ProductRequestDTO;
+import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,26 +24,26 @@ public class ProductResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> findAllPaged(
+    public ResponseEntity<Page<ProductResponseDTO>> findAllPaged(
             @PageableDefault(size = 5, page = 0, sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<ProductDTO> result = service.findAllPaged(pageable);
+        Page<ProductResponseDTO> result = service.findAllPaged(pageable);
         return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> save(@Valid @RequestBody ProductDTO payload) {
-        ProductDTO response = service.save(payload);
+    public ResponseEntity<ProductResponseDTO> save(@Valid @RequestBody ProductRequestDTO payload) {
+        ProductResponseDTO response = service.save(payload);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO payload) {
+    public ResponseEntity<ProductResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO payload) {
         return ResponseEntity.ok().body(service.update(id, payload));
     }
 

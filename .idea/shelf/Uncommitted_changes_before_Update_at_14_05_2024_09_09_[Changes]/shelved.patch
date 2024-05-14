@@ -1,0 +1,972 @@
+Index: backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.services;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport com.devsuperior.dscatalog.mappers.todto.ProductMapperToDTO;\r\nimport com.devsuperior.dscatalog.mappers.tomodel.ProductMapperToModel;\r\nimport com.devsuperior.dscatalog.repositories.CategoryRepository;\r\nimport com.devsuperior.dscatalog.repositories.ProductRepository;\r\nimport com.devsuperior.dscatalog.services.exceptions.DatabaseException;\r\nimport com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;\r\nimport jakarta.persistence.EntityNotFoundException;\r\nimport lombok.RequiredArgsConstructor;\r\nimport org.springframework.dao.DataIntegrityViolationException;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.stereotype.Service;\r\nimport org.springframework.transaction.annotation.Propagation;\r\nimport org.springframework.transaction.annotation.Transactional;\r\n\r\nimport java.util.HashSet;\r\nimport java.util.List;\r\nimport java.util.Set;\r\nimport java.util.stream.Collectors;\r\n\r\n@Service\r\n@RequiredArgsConstructor\r\npublic class ProductService {\r\n    private final ProductRepository repository;\r\n    private final CategoryRepository categoryRepository;\r\n\r\n    @Transactional(readOnly = true)\r\n    public Page<ProductDTO> findAllPaged(Pageable page) {\r\n        return repository.findAll(page).map(products -> ProductMapperToDTO.converter(products, true));\r\n    }\r\n\r\n    @Transactional(readOnly = true)\r\n    public ProductDTO findById(Long id) {\r\n        Product entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(\"Produto não encontrado\"));\r\n        return ProductMapperToDTO.converter(entity, true);\r\n    }\r\n\r\n    @Transactional\r\n    public ProductDTO save(ProductDTO payload) {\r\n        Product entity = ProductMapperToModel.converter(payload);\r\n        Set<Category> listaCategorias = getCategoriesList(payload);\r\n        entity.setCategories(listaCategorias);\r\n        repository.save(entity);\r\n        return ProductMapperToDTO.converter(entity, true);\r\n    }\r\n\r\n    @Transactional\r\n    public ProductDTO update(Long id, ProductDTO payload) {\r\n        try {\r\n            Product entity = repository.getReferenceById(id);\r\n            ProductMapperToModel.updateFromDto(entity, payload);\r\n            entity.getCategories().clear();\r\n\r\n            Set<Category> listaCategorias = getCategoriesList(payload);\r\n            entity.setCategories(listaCategorias);\r\n\r\n            Product savedEntity = repository.save(entity);\r\n            return ProductMapperToDTO.converter(savedEntity, true);\r\n        } catch (EntityNotFoundException e) {\r\n            throw new ResourceNotFoundException(\"Produto de id \" + id + \"não encontrado\");\r\n        }\r\n    }\r\n\r\n    @Transactional(propagation = Propagation.SUPPORTS)\r\n    public void delete(Long id) {\r\n        if (!repository.existsById(id)) {\r\n            throw new ResourceNotFoundException(\"Recurso não encontrado\");\r\n        }\r\n\r\n        try {\r\n            repository.deleteById(id);\r\n        } catch (DataIntegrityViolationException e) {\r\n            throw new DatabaseException(\"Falha de integridade referencial\");\r\n        }\r\n    }\r\n\r\n\r\n    private Set<Category> getCategoriesList(ProductDTO payload) {\r\n        Set<Long> categoryIds = payload.getCategories().stream()\r\n                .map(CategoryDTO::getId)\r\n                .collect(Collectors.toSet());\r\n        List<Category> foundCategories = categoryRepository.findAllById(categoryIds);\r\n\r\n        if (foundCategories.size() != categoryIds.size()) {\r\n            categoryIds.removeAll(foundCategories.stream().map(Category::getId).collect(Collectors.toSet()));\r\n            throw new ResourceNotFoundException(\"Categoria(s) de id(s) \" + categoryIds + \" não encontrada(s)\");\r\n        }\r\n\r\n        return new HashSet<>(foundCategories);\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java b/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java	(date 1715687588305)
+@@ -1,7 +1,5 @@
+ package com.devsuperior.dscatalog.services;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+ import com.devsuperior.dscatalog.entities.Product;
+ import com.devsuperior.dscatalog.mappers.todto.ProductMapperToDTO;
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java
+deleted file mode 100644
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ /dev/null	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
+@@ -1,21 +0,0 @@
+-package com.devsuperior.dscatalog.dto;
+-
+-import lombok.AllArgsConstructor;
+-import lombok.Getter;
+-import lombok.NoArgsConstructor;
+-import lombok.Setter;
+-
+-import java.io.Serial;
+-import java.io.Serializable;
+-
+-@Setter
+-@Getter
+-@AllArgsConstructor
+-@NoArgsConstructor
+-public class CategoryMinDTO implements Serializable {
+-    @Serial
+-    private static final long serialVersionUID = 1L;
+-
+-    private Long id;
+-    private String name;
+-}
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java
+deleted file mode 100644
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ /dev/null	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
+@@ -1,20 +0,0 @@
+-package com.devsuperior.dscatalog.dto.request;
+-
+-import lombok.AllArgsConstructor;
+-import lombok.Getter;
+-import lombok.NoArgsConstructor;
+-import lombok.Setter;
+-
+-import java.io.Serial;
+-import java.io.Serializable;
+-
+-@NoArgsConstructor
+-@AllArgsConstructor
+-@Getter
+-@Setter
+-public class RoleRequestDTO implements Serializable {
+-    @Serial
+-    private static final long serialVersionUID = 1L;
+-    private Long id;
+-    private String authority;
+-}
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java
+deleted file mode 100644
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ /dev/null	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
+@@ -1,27 +0,0 @@
+-package com.devsuperior.dscatalog.dto;
+-
+-import lombok.AllArgsConstructor;
+-import lombok.Getter;
+-import lombok.NoArgsConstructor;
+-import lombok.Setter;
+-
+-import java.io.Serial;
+-import java.io.Serializable;
+-import java.time.Instant;
+-
+-@Setter
+-@Getter
+-@AllArgsConstructor
+-@NoArgsConstructor
+-public class ProductMinDTO implements Serializable {
+-    @Serial
+-    private static final long serialVersionUID = 1L;
+-
+-    private Long id;
+-    private String name;
+-    private String description;
+-    private Double price;
+-    private String imgUrl;
+-    private Instant date;
+-
+-}
+Index: backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.resources;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.services.ProductService;\r\nimport jakarta.validation.Valid;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.data.domain.Sort;\r\nimport org.springframework.data.web.PageableDefault;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;\r\n\r\nimport java.net.URI;\r\n\r\n@RestController\r\n@RequestMapping(value = \"/products\")\r\npublic class ProductResource {\r\n    private final ProductService service;\r\n\r\n    public ProductResource(ProductService service) {\r\n        this.service = service;\r\n    }\r\n\r\n    @GetMapping\r\n    public ResponseEntity<Page<ProductDTO>> findAllPaged(\r\n            @PageableDefault(size = 5, page = 0, sort = {\"name\"}, direction = Sort.Direction.ASC) Pageable pageable) {\r\n        Page<ProductDTO> result = service.findAllPaged(pageable);\r\n        return ResponseEntity.ok().body(result);\r\n    }\r\n\r\n    @GetMapping(value = \"/{id}\")\r\n    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {\r\n        return ResponseEntity.ok().body(service.findById(id));\r\n    }\r\n\r\n    @PostMapping\r\n    public ResponseEntity<ProductDTO> save(@Valid @RequestBody ProductDTO payload) {\r\n        ProductDTO response = service.save(payload);\r\n        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path(\"/{id}\").buildAndExpand(response.getId()).toUri();\r\n        return ResponseEntity.created(uri).body(response);\r\n    }\r\n\r\n    @PutMapping(value = \"/{id}\")\r\n    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO payload) {\r\n        return ResponseEntity.ok().body(service.update(id, payload));\r\n    }\r\n\r\n    @DeleteMapping(value = \"/{id}\")\r\n    public ResponseEntity<Void> delete(@PathVariable Long id) {\r\n        service.delete(id);\r\n        return ResponseEntity.noContent().build();\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java b/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java	(date 1715687588243)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.resources;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.services.ProductService;
+ import jakarta.validation.Valid;
+ import org.springframework.data.domain.Page;
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.tomodel;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport org.springframework.beans.BeanUtils;\r\n\r\nimport java.util.Set;\r\nimport java.util.stream.Collectors;\r\n\r\npublic class CategoryMapperToModel {\r\n    private CategoryMapperToModel() {\r\n    }\r\n\r\n    public static Category converter(CategoryDTO dto) {\r\n        Category entity = new Category();\r\n        BeanUtils.copyProperties(dto, entity, \"products\");\r\n\r\n        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());\r\n        entity.setProducts(products);\r\n\r\n        return entity;\r\n    }\r\n\r\n    public static void updateFromDto(Category entity, CategoryDTO dto) {\r\n        BeanUtils.copyProperties(dto, entity, \"products\", \"id\");\r\n        entity.getProducts().clear();\r\n\r\n        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());\r\n        entity.setProducts(products);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java	(date 1715688203677)
+@@ -1,32 +1,20 @@
+ package com.devsuperior.dscatalog.mappers.tomodel;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
++import com.devsuperior.dscatalog.dto.request.CategoryRequestDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+-import com.devsuperior.dscatalog.entities.Product;
+ import org.springframework.beans.BeanUtils;
+ 
+-import java.util.Set;
+-import java.util.stream.Collectors;
+-
+ public class CategoryMapperToModel {
+     private CategoryMapperToModel() {
+     }
+ 
+-    public static Category converter(CategoryDTO dto) {
++    public static Category converter(CategoryRequestDTO dto) {
+         Category entity = new Category();
+-        BeanUtils.copyProperties(dto, entity, "products");
+-
+-        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());
+-        entity.setProducts(products);
+-
++        BeanUtils.copyProperties(dto, entity);
+         return entity;
+     }
+ 
+-    public static void updateFromDto(Category entity, CategoryDTO dto) {
+-        BeanUtils.copyProperties(dto, entity, "products", "id");
+-        entity.getProducts().clear();
+-
+-        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());
+-        entity.setProducts(products);
++    public static void updateFromDto(Category entity, CategoryRequestDTO dto) {
++        BeanUtils.copyProperties(dto, entity, "id");
+     }
+ }
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.tomodel;\r\n\r\nimport com.devsuperior.dscatalog.dto.request.RoleRequestDTO;\r\nimport com.devsuperior.dscatalog.entities.Role;\r\nimport com.devsuperior.dscatalog.mappers.BaseMapper;\r\n\r\npublic class RoleMapperToModel extends BaseMapper {\r\n    private RoleMapperToModel() {\r\n    }\r\n\r\n    public static Role converter(RoleRequestDTO dto) {\r\n        return mapProperties(dto, new Role());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java	(date 1715686996088)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.mappers.tomodel;
+ 
+-import com.devsuperior.dscatalog.dto.request.RoleRequestDTO;
+ import com.devsuperior.dscatalog.entities.Role;
+ import com.devsuperior.dscatalog.mappers.BaseMapper;
+ 
+Index: backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.resources;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.factory.Factory;\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\r\nimport org.springframework.boot.test.context.SpringBootTest;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\nimport org.springframework.test.web.servlet.ResultActions;\r\nimport org.springframework.transaction.annotation.Transactional;\r\n\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;\r\n\r\n@SpringBootTest\r\n@AutoConfigureMockMvc\r\n@Transactional\r\nclass ProductResourceIT {\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    private Long existingId;\r\n    private Long nonExistingId;\r\n    private Long countTotalProducts;\r\n\r\n    @BeforeEach\r\n    void setUp() throws Exception {\r\n        existingId = 1L;\r\n        nonExistingId = 1000L;\r\n        countTotalProducts = 25L;\r\n    }\r\n\r\n    @Test\r\n    void findAllShouldReturnSortedPageWhenSortByName() throws Exception {\r\n        ResultActions result = mockMvc.perform(get(\"/products?page=0&size=12&sort=name,asc\")\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isOk());\r\n        result.andExpect(jsonPath(\"$.content\").exists());\r\n        result.andExpect(jsonPath(\"$.totalElements\").value(countTotalProducts));\r\n        result.andExpect(jsonPath(\"$.content[0].name\").value(\"Macbook Pro\"));\r\n        result.andExpect(jsonPath(\"$.content[1].name\").value(\"PC Gamer\"));\r\n        result.andExpect(jsonPath(\"$.content[2].name\").value(\"PC Gamer Alfa\"));\r\n    }\r\n\r\n    @Test\r\n    void updateShouldReturnProductDTOWhenIdExists() throws Exception {\r\n        ProductDTO productDTO = Factory.createProductDTO();\r\n        String jsonBody = objectMapper.writeValueAsString(productDTO);\r\n        String expectedName = productDTO.getName();\r\n        String expectedDescription = productDTO.getDescription();\r\n\r\n        ResultActions result = mockMvc.perform(put(\"/products/{id}\", existingId)\r\n                .content(jsonBody)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isOk());\r\n        result.andExpect(jsonPath(\"$.id\").value(existingId));\r\n        result.andExpect(jsonPath(\"$.name\").value(expectedName));\r\n        result.andExpect(jsonPath(\"$.description\").value(expectedDescription));\r\n    }\r\n\r\n    @Test\r\n    void updateShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {\r\n        ProductDTO productDTO = Factory.createProductDTO();\r\n        String jsonBody = objectMapper.writeValueAsString(productDTO);\r\n\r\n        ResultActions result = mockMvc.perform(put(\"/products/{id}\", nonExistingId)\r\n                .content(jsonBody)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isNotFound());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java b/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java
+--- a/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java	(date 1715687588120)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.resources;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.factory.Factory;
+ import com.fasterxml.jackson.databind.ObjectMapper;
+ import org.junit.jupiter.api.BeforeEach;
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.todto;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.dto.CategoryMinDTO;\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport org.springframework.beans.BeanUtils;\r\n\r\nimport java.util.Set;\r\nimport java.util.stream.Collectors;\r\n\r\npublic class CategoryMapperToDTO {\r\n    private CategoryMapperToDTO() {\r\n    }\r\n\r\n    public static CategoryDTO converter(Category entity, boolean includeProducts) {\r\n        CategoryDTO dto = new CategoryDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"products\", \"createdAt\", \"updatedAt\");\r\n\r\n        if (includeProducts) {\r\n            Set<ProductDTO> productsDTO = entity.getProducts().stream()\r\n                    .map(x -> ProductMapperToDTO.converter(x, false))\r\n                    .collect(Collectors.toSet());\r\n            dto.setProducts(productsDTO);\r\n        }\r\n\r\n        return dto;\r\n    }\r\n\r\n    public static CategoryMinDTO converterToMin(Category entity) {\r\n        CategoryMinDTO dto = new CategoryMinDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"products\", \"createdAt\", \"updatedAt\");\r\n        return dto;\r\n    }\r\n\r\n    public static CategoryMinDTO converterToMin(CategoryDTO dto) {\r\n        CategoryMinDTO minDto = new CategoryMinDTO();\r\n        BeanUtils.copyProperties(dto, minDto, \"products\");\r\n        return minDto;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java	(date 1715687588144)
+@@ -1,41 +1,16 @@
+ package com.devsuperior.dscatalog.mappers.todto;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
+-import com.devsuperior.dscatalog.dto.CategoryMinDTO;
+-import com.devsuperior.dscatalog.dto.ProductDTO;
++import com.devsuperior.dscatalog.dto.response.CategoryResponseDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+ import org.springframework.beans.BeanUtils;
+ 
+-import java.util.Set;
+-import java.util.stream.Collectors;
+-
+ public class CategoryMapperToDTO {
+     private CategoryMapperToDTO() {
+     }
+ 
+-    public static CategoryDTO converter(Category entity, boolean includeProducts) {
+-        CategoryDTO dto = new CategoryDTO();
+-        BeanUtils.copyProperties(entity, dto, "products", "createdAt", "updatedAt");
+-
+-        if (includeProducts) {
+-            Set<ProductDTO> productsDTO = entity.getProducts().stream()
+-                    .map(x -> ProductMapperToDTO.converter(x, false))
+-                    .collect(Collectors.toSet());
+-            dto.setProducts(productsDTO);
+-        }
+-
+-        return dto;
+-    }
+-
+-    public static CategoryMinDTO converterToMin(Category entity) {
+-        CategoryMinDTO dto = new CategoryMinDTO();
++    public static CategoryResponseDTO converter(Category entity) {
++        CategoryResponseDTO dto = new CategoryResponseDTO();
+         BeanUtils.copyProperties(entity, dto, "products", "createdAt", "updatedAt");
+         return dto;
+     }
+-
+-    public static CategoryMinDTO converterToMin(CategoryDTO dto) {
+-        CategoryMinDTO minDto = new CategoryMinDTO();
+-        BeanUtils.copyProperties(dto, minDto, "products");
+-        return minDto;
+-    }
+ }
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.todto;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.dto.ProductMinDTO;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport org.springframework.beans.BeanUtils;\r\n\r\nimport java.util.Set;\r\nimport java.util.stream.Collectors;\r\n\r\npublic class ProductMapperToDTO {\r\n    private ProductMapperToDTO() {\r\n    }\r\n\r\n    public static ProductDTO converter(Product entity, boolean includeCategories) {\r\n        ProductDTO dto = new ProductDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"categories\", \"createdAt\", \"updatedAt\");\r\n\r\n        if (includeCategories) {\r\n            Set<CategoryDTO> categoriesDTO = entity.getCategories().stream()\r\n                    .map(x -> CategoryMapperToDTO.converter(x, false))\r\n                    .collect(Collectors.toSet());\r\n            dto.setCategories(categoriesDTO);\r\n        }\r\n\r\n        return dto;\r\n    }\r\n\r\n    public static ProductMinDTO convertToMin(Product entity) {\r\n        ProductMinDTO dto = new ProductMinDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"categories\", \"createdAt\", \"updatedAt\");\r\n        return dto;\r\n    }\r\n\r\n    public static ProductMinDTO convertToMin(ProductDTO dto) {\r\n        ProductMinDTO minDto = new ProductMinDTO();\r\n        BeanUtils.copyProperties(dto, minDto, \"categories\", \"createdAt\", \"updatedAt\");\r\n        return minDto;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java	(date 1715687955651)
+@@ -1,41 +1,17 @@
+ package com.devsuperior.dscatalog.mappers.todto;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+-import com.devsuperior.dscatalog.dto.ProductMinDTO;
++import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
+ import com.devsuperior.dscatalog.entities.Product;
+ import org.springframework.beans.BeanUtils;
+ 
+-import java.util.Set;
+-import java.util.stream.Collectors;
+-
+ public class ProductMapperToDTO {
+     private ProductMapperToDTO() {
+     }
+ 
+-    public static ProductDTO converter(Product entity, boolean includeCategories) {
+-        ProductDTO dto = new ProductDTO();
+-        BeanUtils.copyProperties(entity, dto, "categories", "createdAt", "updatedAt");
+-
+-        if (includeCategories) {
+-            Set<CategoryDTO> categoriesDTO = entity.getCategories().stream()
+-                    .map(x -> CategoryMapperToDTO.converter(x, false))
+-                    .collect(Collectors.toSet());
+-            dto.setCategories(categoriesDTO);
+-        }
+-
+-        return dto;
+-    }
+-
+-    public static ProductMinDTO convertToMin(Product entity) {
+-        ProductMinDTO dto = new ProductMinDTO();
++    public static ProductResponseDTO converter(Product entity) {
++        ProductResponseDTO dto = new ProductResponseDTO();
+         BeanUtils.copyProperties(entity, dto, "categories", "createdAt", "updatedAt");
++        entity.getCategories().forEach(category -> dto.getCategories().add(CategoryMapperToDTO.converter(category)));
+         return dto;
+     }
+-
+-    public static ProductMinDTO convertToMin(ProductDTO dto) {
+-        ProductMinDTO minDto = new ProductMinDTO();
+-        BeanUtils.copyProperties(dto, minDto, "categories", "createdAt", "updatedAt");
+-        return minDto;
+-    }
+ }
+Index: backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.services;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport com.devsuperior.dscatalog.factory.Factory;\r\nimport com.devsuperior.dscatalog.repositories.CategoryRepository;\r\nimport com.devsuperior.dscatalog.repositories.ProductRepository;\r\nimport com.devsuperior.dscatalog.services.exceptions.DatabaseException;\r\nimport com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;\r\nimport jakarta.persistence.EntityNotFoundException;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.junit.jupiter.api.extension.ExtendWith;\r\nimport org.mockito.InjectMocks;\r\nimport org.mockito.Mock;\r\nimport org.springframework.dao.DataIntegrityViolationException;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.test.context.junit.jupiter.SpringExtension;\r\n\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\nimport static org.mockito.Mockito.*;\r\n\r\n@ExtendWith(SpringExtension.class)\r\nclass ProductServiceTests {\r\n    // Nos testes unitários, vamos precisar mockar as dependências desse serviço com o mockito\r\n\r\n    @InjectMocks\r\n    private ProductService service;\r\n\r\n    // Com o @Mock, nós devemos simular o comportamento do repository\r\n    @Mock\r\n    private ProductRepository repository;\r\n\r\n    @Mock\r\n    private CategoryRepository categoryRepository;\r\n\r\n    private long existingId;\r\n    private long nonExistingId;\r\n    private long dependentId;\r\n    private Product product;\r\n    private Category category;\r\n    private PageImpl<Product> page;\r\n\r\n    @BeforeEach\r\n    void setUp() throws Exception {\r\n        existingId = 1L;\r\n        nonExistingId = 3L;\r\n        dependentId = 2L;\r\n        product = Factory.createProduct();\r\n        category = Factory.createCategory();\r\n        page = new PageImpl<>(List.of(product));\r\n\r\n        // Como o método deleteById retorna void, devemos fazer com o doNothing\r\n        doNothing().when(repository).deleteById(existingId);\r\n\r\n        // Quando o método deleteById for chamado com o id dependente, lançamos a exceção DataIntegrityViolationException\r\n        doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);\r\n\r\n        when(repository.existsById(dependentId)).thenReturn(true);\r\n        when(repository.existsById(existingId)).thenReturn(true);\r\n        when(repository.existsById(nonExistingId)).thenReturn(false);\r\n\r\n        // Mock Simulação do findAll\r\n        when(repository.findAll((Pageable) any())).thenReturn(page);\r\n\r\n        // Mock Simulação do save e update\r\n        when(repository.save(any())).thenReturn(product);\r\n        when(repository.getReferenceById(existingId)).thenReturn(product);\r\n        when(categoryRepository.findAllById(any())).thenReturn(List.of(category));\r\n        doThrow(EntityNotFoundException.class).when(repository).getReferenceById(nonExistingId);\r\n\r\n        // Mock Simulação do findById\r\n        when(repository.findById(existingId)).thenReturn(Optional.of(product)); // Optional preenchido\r\n        when(repository.findById(nonExistingId)).thenReturn(Optional.empty()); // Optional vazio\r\n    }\r\n\r\n    @Test\r\n    void delete_should_do_nothing_when_id_exists() {\r\n        assertDoesNotThrow(() -> service.delete(existingId));\r\n\r\n        // Verifica se o mock do repository chamou 1x o método deleteById com o id correto\r\n        verify(repository, times(1)).deleteById(existingId);\r\n    }\r\n\r\n    @Test\r\n    void delete_should_throw_ResourceNotFoundException_when_id_does_not_exist() {\r\n        assertThrows(ResourceNotFoundException.class, () -> {\r\n            service.delete(nonExistingId);\r\n        });\r\n    }\r\n\r\n    @Test\r\n    void delete_should_throw_DatabaseException_when_id_is_dependent() {\r\n        assertThrows(DatabaseException.class, () -> {\r\n            service.delete(dependentId);\r\n        });\r\n    }\r\n\r\n    @Test\r\n    void find_all_paged_should_return_page() {\r\n        Pageable pageable = PageRequest.of(0, 10);\r\n        Page<ProductDTO> result = service.findAllPaged(pageable);\r\n\r\n        // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x\r\n        assertNotNull(result);\r\n        verify(repository, times(1)).findAll(pageable);\r\n    }\r\n\r\n    @Test\r\n    void find_by_id_should_return_productDTO_when_id_exists() {\r\n        ProductDTO result = service.findById(existingId);\r\n\r\n        // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x\r\n        assertNotNull(result);\r\n        verify(repository, times(1)).findById(existingId);\r\n    }\r\n\r\n    @Test\r\n    void find_by_id_should_throw_ResourceNotFoundException_when_id_does_not_exist() {\r\n        assertThrows(ResourceNotFoundException.class, () -> {\r\n            service.findById(nonExistingId);\r\n        });\r\n    }\r\n\r\n    @Test\r\n    void update_should_return_productDTO_when_id_exists() {\r\n        ProductDTO result = service.update(existingId, Factory.createProductDTO());\r\n\r\n        // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x\r\n        assertNotNull(result);\r\n        verify(repository, times(1)).getReferenceById(existingId);\r\n        verify(repository, times(1)).save(any());\r\n    }\r\n\r\n    @Test\r\n    void update_should_throw_ResourceNotFoundException_when_id_does_not_exist() {\r\n        assertThrows(ResourceNotFoundException.class, () -> {\r\n            service.update(nonExistingId, Factory.createProductDTO());\r\n        });\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java b/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java
+--- a/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java	(date 1715687588202)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.services;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+ import com.devsuperior.dscatalog.entities.Product;
+ import com.devsuperior.dscatalog.factory.Factory;
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java
+new file mode 100644
+--- /dev/null	(date 1715687435671)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java	(date 1715687435671)
+@@ -0,0 +1,37 @@
++package com.devsuperior.dscatalog.dto.response;
++
++import com.fasterxml.jackson.annotation.JsonInclude;
++import lombok.AllArgsConstructor;
++import lombok.Getter;
++import lombok.NoArgsConstructor;
++import lombok.Setter;
++
++import java.io.Serial;
++import java.io.Serializable;
++import java.time.Instant;
++import java.util.ArrayList;
++import java.util.List;
++
++@Setter
++@Getter
++@AllArgsConstructor
++@NoArgsConstructor
++public class ProductResponseDTO implements Serializable {
++    @Serial
++    private static final long serialVersionUID = 1L;
++
++    private Long id;
++    private String name;
++    private String description;
++    private Double price;
++    private String imgUrl;
++    private Instant date;
++
++    @JsonInclude(JsonInclude.Include.NON_EMPTY)
++    private List<CategoryResponseDTO> categories = new ArrayList<>();
++
++    public void addCategory(CategoryResponseDTO category) {
++        categories.add(category);
++    }
++
++}
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.tomodel;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport com.devsuperior.dscatalog.mappers.BaseMapper;\r\n\r\nimport java.util.stream.Collectors;\r\n\r\npublic class ProductMapperToModel extends BaseMapper {\r\n    private ProductMapperToModel() {\r\n    }\r\n\r\n    public static Product converter(ProductDTO dto) {\r\n        Product entity = mapProperties(dto, new Product(), \"categories\");\r\n        entity.setCategories(dto.getCategories().stream()\r\n                .map(CategoryMapperToModel::converter)\r\n                .collect(Collectors.toSet()));\r\n        return entity;\r\n    }\r\n\r\n    public static void updateFromDto(Product entity, ProductDTO dto) {\r\n        mapProperties(dto, entity, \"categories\", \"id\");\r\n        entity.getCategories().clear();\r\n        dto.getCategories().forEach(category ->\r\n                entity.addCategory(CategoryMapperToModel.converter(category)));\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java	(date 1715688418743)
+@@ -1,27 +1,25 @@
+ package com.devsuperior.dscatalog.mappers.tomodel;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
++import com.devsuperior.dscatalog.dto.request.ProductRequestDTO;
++import com.devsuperior.dscatalog.entities.Category;
+ import com.devsuperior.dscatalog.entities.Product;
+ import com.devsuperior.dscatalog.mappers.BaseMapper;
+ 
+-import java.util.stream.Collectors;
++import java.util.Set;
+ 
+ public class ProductMapperToModel extends BaseMapper {
+     private ProductMapperToModel() {
+     }
+ 
+-    public static Product converter(ProductDTO dto) {
++    public static Product converter(ProductRequestDTO dto, Set<Category> categories) {
+         Product entity = mapProperties(dto, new Product(), "categories");
+-        entity.setCategories(dto.getCategories().stream()
+-                .map(CategoryMapperToModel::converter)
+-                .collect(Collectors.toSet()));
++        entity.getCategories().addAll(categories);
+         return entity;
+     }
+ 
+-    public static void updateFromDto(Product entity, ProductDTO dto) {
++    public static void updateFromDto(Product entity, ProductRequestDTO dto, Set<Category> categories) {
+         mapProperties(dto, entity, "categories", "id");
+         entity.getCategories().clear();
+-        dto.getCategories().forEach(category ->
+-                entity.addCategory(CategoryMapperToModel.converter(category)));
++        entity.getCategories().addAll(categories);
+     }
+ }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"ad1073fc-557f-4c95-a3c7-f167c12222fa\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/FieldMessage.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ValidationError.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValid.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValidator.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValid.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/pom.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/pom.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/User.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/User.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Interface\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"FormatOnSaveOptions\">\r\n    <option name=\"myRunOnSave\" value=\"true\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitToolBoxStore\">\r\n    <option name=\"projectConfigVersion\" value=\"5\" />\r\n  </component>\r\n  <component name=\"JpbToolWindowState\">\r\n    <option name=\"isToolWindowVisible\" value=\"false\" />\r\n  </component>\r\n  <component name=\"OptimizeOnSaveOptions\">\r\n    <option name=\"myRunOnSave\" value=\"true\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 8\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2fomVsa7iDSp6H3Inoip4T4vkyq\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;JUnit.ProductRepositoryTests.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductResourceIT.findAllShouldReturnSortedPageWhenSortByName.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductResourceIT.updateShouldReturnProductDTOWhenIdExists.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductResourceTests.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductResourceTests.updateShouldReturnNotFoundWhenIdDoesNotExists.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductServiceIT.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductServiceTests.executor&quot;: &quot;Run&quot;,\r\n    &quot;JUnit.ProductServiceTests.find_by_id_should_return_productDTO_when_id_exists.executor&quot;: &quot;Run&quot;,\r\n    &quot;Notification.DisplayName-DoNotAsk-gittoolbox.fetch.info&quot;: &quot;GitToolBox fetch info&quot;,\r\n    &quot;Notification.DoNotAsk-gittoolbox.fetch.info&quot;: &quot;true&quot;,\r\n    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,\r\n    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,\r\n    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,\r\n    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;Spring Boot.DscatalogApplication.executor&quot;: &quot;Run&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/Victor/Desktop/Victor/estudos/java/dev_superior/curso 2 - java spring expert/dscatalog/backend/src/main/resources&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;settings.saveactions&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\dev_superior\\curso 2 - java spring expert\\dscatalog\\backend\\src\\main\\resources\" />\r\n    </key>\r\n    <key name=\"CopyClassDialog.RECENTS_KEY\">\r\n      <recent name=\"com.devsuperior.dscatalog.dto.request\" />\r\n      <recent name=\"com.devsuperior.dscatalog.services.validation\" />\r\n      <recent name=\"com.devsuperior.dscatalog.dto.response\" />\r\n      <recent name=\"com.devsuperior.dscatalog.repositories\" />\r\n      <recent name=\"com.devsuperior.dscatalog.resources\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Spring Boot.DscatalogApplication\">\r\n    <configuration name=\"ProductResourceIT.findAllShouldReturnSortedPageWhenSortByName\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.devsuperior.dscatalog.resources.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <option name=\"PACKAGE_NAME\" value=\"com.devsuperior.dscatalog.resources\" />\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.devsuperior.dscatalog.resources.ProductResourceIT\" />\r\n      <option name=\"METHOD_NAME\" value=\"findAllShouldReturnSortedPageWhenSortByName\" />\r\n      <option name=\"TEST_OBJECT\" value=\"method\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"ProductResourceIT.updateShouldReturnProductDTOWhenIdExists\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.devsuperior.dscatalog.resources.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <option name=\"PACKAGE_NAME\" value=\"com.devsuperior.dscatalog.resources\" />\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.devsuperior.dscatalog.resources.ProductResourceIT\" />\r\n      <option name=\"METHOD_NAME\" value=\"updateShouldReturnProductDTOWhenIdExists\" />\r\n      <option name=\"TEST_OBJECT\" value=\"method\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"ProductResourceTests\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.devsuperior.dscatalog.resources.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <option name=\"PACKAGE_NAME\" value=\"com.devsuperior.dscatalog.resources\" />\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.devsuperior.dscatalog.resources.ProductResourceTests\" />\r\n      <option name=\"TEST_OBJECT\" value=\"class\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"ProductResourceTests.updateShouldReturnNotFoundWhenIdDoesNotExists\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.devsuperior.dscatalog.resources.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <option name=\"PACKAGE_NAME\" value=\"com.devsuperior.dscatalog.resources\" />\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.devsuperior.dscatalog.resources.ProductResourceTests\" />\r\n      <option name=\"METHOD_NAME\" value=\"updateShouldReturnNotFoundWhenIdDoesNotExists\" />\r\n      <option name=\"TEST_OBJECT\" value=\"method\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"ProductServiceIT\" type=\"JUnit\" factoryName=\"JUnit\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.devsuperior.dscatalog.services.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <option name=\"PACKAGE_NAME\" value=\"com.devsuperior.dscatalog.services\" />\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.devsuperior.dscatalog.services.ProductServiceIT\" />\r\n      <option name=\"TEST_OBJECT\" value=\"class\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"DscatalogApplication\" type=\"SpringBootApplicationConfigurationType\" factoryName=\"Spring Boot\" nameIsGenerated=\"true\">\r\n      <module name=\"dscatalog\" />\r\n      <option name=\"SPRING_BOOT_MAIN_CLASS\" value=\"com.devsuperior.dscatalog.DscatalogApplication\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"JUnit.ProductResourceIT.updateShouldReturnProductDTOWhenIdExists\" />\r\n        <item itemvalue=\"JUnit.ProductResourceIT.findAllShouldReturnSortedPageWhenSortByName\" />\r\n        <item itemvalue=\"JUnit.ProductServiceIT\" />\r\n        <item itemvalue=\"JUnit.ProductResourceTests\" />\r\n        <item itemvalue=\"JUnit.ProductResourceTests.updateShouldReturnNotFoundWhenIdDoesNotExists\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150\" />\r\n        <option value=\"bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"4\" Folder0=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\" Folder1=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\" Folder2=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\" Folder3=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\" CustomDictionaries=\"4\" CustomDictionary0=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\\portuguese-brazil.dic\" CustomDictionary1=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\\portuguese-brazil_technical-terms.dic\" CustomDictionary2=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\\portuguese-brazil_technical-terms_without-accents.dic\" CustomDictionary3=\"C:\\Users\\Victor\\Desktop\\Victor\\estudos\\java\\IntelliJ.Portuguese.Brazil.Dictionary\\portuguese-brazil_without-accents.dic\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"ad1073fc-557f-4c95-a3c7-f167c12222fa\" name=\"Changes\" comment=\"\" />\r\n      <created>1714475834210</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1714475834210</updated>\r\n      <workItem from=\"1714475835179\" duration=\"2249000\" />\r\n      <workItem from=\"1715107564496\" duration=\"8035000\" />\r\n      <workItem from=\"1715115970288\" duration=\"13228000\" />\r\n      <workItem from=\"1715169155268\" duration=\"791000\" />\r\n      <workItem from=\"1715170292834\" duration=\"2980000\" />\r\n      <workItem from=\"1715180568141\" duration=\"7744000\" />\r\n      <workItem from=\"1715256386629\" duration=\"2920000\" />\r\n      <workItem from=\"1715597886122\" duration=\"11445000\" />\r\n      <workItem from=\"1715614912849\" duration=\"26000\" />\r\n      <workItem from=\"1715616369921\" duration=\"4631000\" />\r\n      <workItem from=\"1715622453021\" duration=\"6347000\" />\r\n      <workItem from=\"1715634338387\" duration=\"5708000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/.idea/workspace.xml	(date 1715688580519)
+@@ -5,28 +5,37 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="ad1073fc-557f-4c95-a3c7-f167c12222fa" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/FieldMessage.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ValidationError.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValid.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValidator.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValid.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/5/6/565654abc34aaab5f921a8446b750b7bef9dbc7a" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/5/6/565654abc34aaab5f921a8446b750b7bef9dbc7a" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/5/c515f05faf9298b360b54df71d5cfe6df15890a2" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/5/c515f05faf9298b360b54df71d5cfe6df15890a2" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/5/e541c25c5c74af88a84da3edf05ce98b438d406a" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/5/e541c25c5c74af88a84da3edf05ce98b438d406a" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/User.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -104,9 +113,9 @@
+       <recent name="C:\Users\Victor\Desktop\Victor\estudos\java\dev_superior\curso 2 - java spring expert\dscatalog\backend\src\main\resources" />
+     </key>
+     <key name="CopyClassDialog.RECENTS_KEY">
++      <recent name="com.devsuperior.dscatalog.dto.response" />
+       <recent name="com.devsuperior.dscatalog.dto.request" />
+       <recent name="com.devsuperior.dscatalog.services.validation" />
+-      <recent name="com.devsuperior.dscatalog.dto.response" />
+       <recent name="com.devsuperior.dscatalog.repositories" />
+       <recent name="com.devsuperior.dscatalog.resources" />
+     </key>
+@@ -234,7 +243,9 @@
+       <workItem from="1715614912849" duration="26000" />
+       <workItem from="1715616369921" duration="4631000" />
+       <workItem from="1715622453021" duration="6347000" />
+-      <workItem from="1715634338387" duration="5708000" />
++      <workItem from="1715634338387" duration="7791000" />
++      <workItem from="1715686814238" duration="38000" />
++      <workItem from="1715686893299" duration="1658000" />
+     </task>
+     <servers />
+   </component>
+Index: backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.services;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;\r\nimport com.devsuperior.dscatalog.mappers.tomodel.CategoryMapperToModel;\r\nimport com.devsuperior.dscatalog.repositories.CategoryRepository;\r\nimport com.devsuperior.dscatalog.services.exceptions.DatabaseException;\r\nimport com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;\r\nimport jakarta.persistence.EntityNotFoundException;\r\nimport org.springframework.dao.DataIntegrityViolationException;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.stereotype.Service;\r\nimport org.springframework.transaction.annotation.Propagation;\r\nimport org.springframework.transaction.annotation.Transactional;\r\n\r\n@Service\r\npublic class CategoryService {\r\n    private final CategoryRepository repository;\r\n\r\n    public CategoryService(CategoryRepository repository) {\r\n        this.repository = repository;\r\n    }\r\n\r\n    @Transactional(readOnly = true)\r\n    public Page<CategoryDTO> findAllPaged(PageRequest page) {\r\n        return repository.findAll(page).map(category -> CategoryMapperToDTO.converter(category, true));\r\n    }\r\n\r\n    @Transactional(readOnly = true)\r\n    public CategoryDTO findById(Long id) {\r\n        Category entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(\"Categoria não encontrada\"));\r\n        return CategoryMapperToDTO.converter(entity, true);\r\n    }\r\n\r\n    @Transactional\r\n    public CategoryDTO save(CategoryDTO payload) {\r\n        Category entity = CategoryMapperToModel.converter(payload);\r\n        repository.save(entity);\r\n        return CategoryMapperToDTO.converter(entity, true);\r\n    }\r\n\r\n    @Transactional\r\n    public CategoryDTO update(Long id, CategoryDTO payload) {\r\n        try {\r\n            Category entity = repository.getReferenceById(id);\r\n            CategoryMapperToModel.updateFromDto(entity, payload);\r\n            Category savedEntity = repository.save(entity);\r\n            return CategoryMapperToDTO.converter(savedEntity, true);\r\n        } catch (EntityNotFoundException e) {\r\n            throw new ResourceNotFoundException(\"Categoria de id \" + id + \"não encontrada\");\r\n        }\r\n    }\r\n\r\n    @Transactional(propagation = Propagation.SUPPORTS)\r\n    public void delete(Long id) {\r\n        if (!repository.existsById(id)) {\r\n            throw new ResourceNotFoundException(\"Recurso não encontrado\");\r\n        }\r\n\r\n        try {\r\n            repository.deleteById(id);\r\n        } catch (DataIntegrityViolationException e) {\r\n            throw new DatabaseException(\"Falha de integridade referencial\");\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java b/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java	(date 1715688580275)
+@@ -1,6 +1,7 @@
+ package com.devsuperior.dscatalog.services;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
++import com.devsuperior.dscatalog.dto.request.CategoryRequestDTO;
++import com.devsuperior.dscatalog.dto.response.CategoryResponseDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+ import com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;
+ import com.devsuperior.dscatalog.mappers.tomodel.CategoryMapperToModel;
+@@ -24,30 +25,30 @@
+     }
+ 
+     @Transactional(readOnly = true)
+-    public Page<CategoryDTO> findAllPaged(PageRequest page) {
+-        return repository.findAll(page).map(category -> CategoryMapperToDTO.converter(category, true));
++    public Page<CategoryResponseDTO> findAllPaged(PageRequest page) {
++        return repository.findAll(page).map(CategoryMapperToDTO::converter);
+     }
+ 
+     @Transactional(readOnly = true)
+-    public CategoryDTO findById(Long id) {
++    public CategoryResponseDTO findById(Long id) {
+         Category entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+-        return CategoryMapperToDTO.converter(entity, true);
++        return CategoryMapperToDTO.converter(entity);
+     }
+ 
+     @Transactional
+-    public CategoryDTO save(CategoryDTO payload) {
++    public CategoryResponseDTO save(CategoryRequestDTO payload) {
+         Category entity = CategoryMapperToModel.converter(payload);
+         repository.save(entity);
+-        return CategoryMapperToDTO.converter(entity, true);
++        return CategoryMapperToDTO.converter(entity);
+     }
+ 
+     @Transactional
+-    public CategoryDTO update(Long id, CategoryDTO payload) {
++    public CategoryResponseDTO update(Long id, CategoryRequestDTO payload) {
+         try {
+             Category entity = repository.getReferenceById(id);
+             CategoryMapperToModel.updateFromDto(entity, payload);
+             Category savedEntity = repository.save(entity);
+-            return CategoryMapperToDTO.converter(savedEntity, true);
++            return CategoryMapperToDTO.converter(savedEntity);
+         } catch (EntityNotFoundException e) {
+             throw new ResourceNotFoundException("Categoria de id " + id + "não encontrada");
+         }
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.dto.request;\r\n\r\nimport jakarta.validation.constraints.Email;\r\nimport jakarta.validation.constraints.NotBlank;\r\nimport jakarta.validation.constraints.Size;\r\nimport lombok.AllArgsConstructor;\r\nimport lombok.Getter;\r\nimport lombok.NoArgsConstructor;\r\nimport lombok.Setter;\r\n\r\nimport java.util.HashSet;\r\nimport java.util.Set;\r\n\r\n@NoArgsConstructor\r\n@AllArgsConstructor\r\n@Getter\r\n@Setter\r\npublic class UserRequestDTO {\r\n    @NotBlank(message = \"Campo requerido\")\r\n    @Size(min = 3, max = 20, message = \"O nome do usuário deve ter entre {min} e {max} caracteres\")\r\n    private String firstName;\r\n\r\n    @NotBlank(message = \"Campo requerido\")\r\n    @Size(min = 3, max = 50, message = \"O sobrenome do usuário deve ter entre {min} e {max} caracteres\")\r\n    private String lastName;\r\n\r\n    @NotBlank(message = \"Campo requerido\")\r\n    @Email(message = \"Formato de e-mail inválido\")\r\n    private String email;\r\n\r\n    private Set<RoleRequestDTO> roles = new HashSet<>();\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java	(date 1715686938675)
+@@ -8,8 +8,8 @@
+ import lombok.NoArgsConstructor;
+ import lombok.Setter;
+ 
+-import java.util.HashSet;
+-import java.util.Set;
++import java.util.ArrayList;
++import java.util.List;
+ 
+ @NoArgsConstructor
+ @AllArgsConstructor
+@@ -28,5 +28,5 @@
+     @Email(message = "Formato de e-mail inválido")
+     private String email;
+ 
+-    private Set<RoleRequestDTO> roles = new HashSet<>();
++    private List<Long> roles = new ArrayList<>();
+ }
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java
+rename from backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java
+rename to backend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java	(date 1715687294868)
+@@ -1,6 +1,5 @@
+-package com.devsuperior.dscatalog.dto;
++package com.devsuperior.dscatalog.dto.request;
+ 
+-import com.fasterxml.jackson.annotation.JsonInclude;
+ import jakarta.validation.constraints.NotBlank;
+ import jakarta.validation.constraints.Size;
+ import lombok.AllArgsConstructor;
+@@ -10,23 +9,16 @@
+ 
+ import java.io.Serial;
+ import java.io.Serializable;
+-import java.util.HashSet;
+-import java.util.Set;
+ 
+ @Setter
+ @Getter
+ @AllArgsConstructor
+ @NoArgsConstructor
+-public class CategoryDTO implements Serializable {
++public class CategoryRequestDTO implements Serializable {
+     @Serial
+     private static final long serialVersionUID = 1L;
+ 
+-    private Long id;
+-
+     @NotBlank(message = "Campo requerido")
+     @Size(min = 5, max = 20, message = "O nome da categoria deve ter entre {min} e {max} caracteres")
+     private String name;
+-
+-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+-    private Set<ProductDTO> products = new HashSet<>();
+ }
+Index: .idea/sonarlint/issuestore/index.pb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\nv\nFbackend/src/main/java/com/devsuperior/dscatalog/entities/Category.java\u0012,b\\5\\b5dd1dec7933a04237f9b9e1b879be0cb514cb9b\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java\u0012,a\\9\\a93a61c744fac2b96739617abf08392d720f1bc1\n?\n\u000Fbackend/pom.xml\u0012,f\\9\\f9590cd73598b6f2427c8b1327d922c50d1dc504\nB\n\u0012backend/.gitignore\u0012,7\\e\\7e16691a9fc60084a157565ec422c8094d3df67c\n�\u0001\nTbackend/src/main/java/com/devsuperior/dscatalog/repositories/CategoryRepository.java\u0012,a\\6\\a68e5ea34e0e94b8b9ae8be3716f329865819ab1\n}\nMbackend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java\u0012,9\\5\\95797ebd2b2eb4d71cec091745736eb5fe04e492\nt\nDbackend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java\u0012,8\\7\\87dd08ff3525e9f22b14934070a317812b7b3f52\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java\u0012,e\\5\\e541c25c5c74af88a84da3edf05ce98b438d406a\n�\u0001\nWbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/StandardError.java\u0012,9\\2\\92c14a3e0b817b0e13d043f20a6bd77863d3d000\n�\u0001\nbbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java\u0012,9\\2\\9285f2c8331ca7e0ee84bc6920b0c2f366a15f6e\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/mappers/toModel/CategoryMapperToModel.java\u0012,7\\8\\7826de9201a75cd905165e679b1f23ce394fb5ef\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java\u0012,d\\6\\d6b6c2708feb3e37939f9bcd712d905f54b3f1d8\n�\u0001\nbbackend/src/main/java/com/devsuperior/dscatalog/services/exceptions/ResourceNotFoundException.java\u0012,2\\3\\23dee99add0137af7866faffa0b92793f3286d1b\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/services/exceptions/DatabaseException.java\u0012,3\\0\\30185efb4b692bb61cfe22a5c2393a66a74926fe\nu\nEbackend/src/main/java/com/devsuperior/dscatalog/entities/Product.java\u0012,5\\c\\5c7afee3bdcfe2c5f93e968ede86d599d2d43357\ns\nCbackend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java\u0012,a\\7\\a75f8d80dca04c67a4400faeb8e8109528ebbe29\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java\u0012,c\\5\\c515f05faf9298b360b54df71d5cfe6df15890a2\n�\u0001\nYbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java\u0012,1\\9\\196d08cdc2bd434d7d8d9b8f0db2e04c95c41d5b\n�\u0001\nSbackend/src/main/java/com/devsuperior/dscatalog/repositories/ProductRepository.java\u0012,b\\a\\baae5da91233393d10dd6cb5dec3876f799f3c84\n|\nLbackend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java\u0012,c\\7\\c7a40e27587775089522f7c0a1c004c6858c0b61\n~\nNbackend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java\u0012,7\\6\\76381c0fc68d5e0b390d7d0c9f487fc8b967ed02\nw\nGbackend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java\u0012,1\\7\\171b918aa39bb408f20fd2dbe1fbd07c8650db5a\nv\nFbackend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java\u0012,8\\6\\86f3a79d89531f6ae50ff2611c7540906f4e292d\nw\nGbackend/src/main/java/com/devsuperior/dscatalog/mappers/BaseMapper.java\u0012,1\\a\\1adad8c9e160137ba9b43b4194b2ceabcc4bc7cd\n~\nNbackend/src/test/java/com/devsuperior/dscatalog/DscatalogApplicationTests.java\u0012,6\\0\\601ee95745b6346fab35b60804c6b53f667980f5\n�\u0001\nXbackend/src/test/java/com/devsuperior/dscatalog/repositories/ProductRepositoryTests.java\u0012,a\\7\\a7d26d50c568cdb86bf1c38354c09c74e722a6cc\nt\nDbackend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java\u0012,6\\f\\6f6401c67a476a03c1e5adc293a2e3d256139b49\n�\u0001\nQbackend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java\u0012,8\\5\\853c47ffda38eec540f7b020e897b186d54ab1e7\n�\u0001\nSbackend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java\u0012,b\\1\\b11c516bf216dcc155aedac4570f1e654a434f85\n~\nNbackend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java\u0012,c\\9\\c98f6632021bf5f13331d6135182815c87b62390\n�\u0001\nPbackend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java\u0012,a\\6\\a690ead7d4c8816323c8e8743892f72ae3780341\nr\nBbackend/src/main/java/com/devsuperior/dscatalog/entities/Role.java\u0012,e\\c\\ec2b27c511daf8c2ab9a073f5f338b895da10ba3\nr\nBbackend/src/main/java/com/devsuperior/dscatalog/entities/User.java\u0012,4\\d\\4d1634bc2ecefcf684d69b6fb54aab618d139394\ny\nIbackend/src/main/java/com/devsuperior/dscatalog/DscatalogApplication.java\u0012,c\\b\\cbcc56e56d140692a2829f1c31cd84bcb39d4459\n�\u0001\nPbackend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java\u0012,6\\4\\64db3df88a7c360fdd196fed00f1a8093387911c\ny\nIbackend/src/main/java/com/devsuperior/dscatalog/services/UserService.java\u0012,5\\d\\5dec2b166f9d6108bc19f79f7bd0329ef2009fa6\n�\u0001\nQbackend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java\u0012,3\\3\\3362fb1dbcd8a6752aa86a9fa0b9d86419cee9ce\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java\u0012,f\\4\\f45988e941a4c1869a3de3f5a73ecd812ef606fa\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java\u0012,1\\9\\197b1f6e4b9dbf9ad56c3cb3eea80eb2bdc5b8b0\n�\u0001\nRbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java\u0012,5\\6\\565654abc34aaab5f921a8446b750b7bef9dbc7a\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java\u0012,a\\d\\adc6e038b2aa2f630e4a1331077510e4fb45b002\n�\u0001\nQbackend/src/main/java/com/devsuperior/dscatalog/dto/response/RoleResponseDTO.java\u0012,8\\8\\882f75d6898a1098b5a0f6170cfe0e951dc94fca\n�\u0001\nRbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/RoleMapperToDTO.java\u0012,6\\7\\677ab0f455661fbed0d4e6d54aaa6693b728e28d\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java\u0012,5\\5\\558e8a05d13e954aeed5bde222fa4991cb68c33a\n{\nKbackend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java\u0012,4\\9\\495578f52f366d4cb51131e86510ea2141a38baa\n�\u0001\nPbackend/src/main/java/com/devsuperior/dscatalog/repositories/RoleRepository.java\u0012,0\\d\\0d2633e53cf9085a41f0a24178c607c9e930a7e8\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java\u0012,5\\8\\580dd1be8fedb3fbe945d065d61e085656ed4271\n�\u0001\nWbackend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseInsertDTO.java\u0012,4\\c\\4c987d3576ce2baa85826a8e5fb508d0ec721e4a\nu\nEbackend/src/main/java/com/devsuperior/dscatalog/config/AppConfig.java\u0012,e\\6\\e604f625d79b93a48d4775db65afcf46a6b1dc75\nz\nJbackend/src/main/java/com/devsuperior/dscatalog/config/SecurityConfig.java\u0012,9\\0\\90404282227ca06016d6b5224cb4857a0e5d8ea6\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/FieldMessage.java\u0012,7\\3\\734897a36296a6091d6d944f455c46f304c87e03\n�\u0001\nYbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ValidationError.java\u0012,9\\d\\9dc5db7923eae002f37505b5566d1aee141243df\n�\u0001\nXbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValid.java\u0012,1\\d\\1de5f94513b36a84d6c60dd1e2bc56b4efe693fb\n�\u0001\n\\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValidator.java\u0012,a\\5\\a57e6fd1f10b9be83aff26cf60f60a00cd4a0397\n�\u0001\nXbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValid.java\u0012,d\\6\\d6f76ea172c89bd9cd74ceaf1048d24187f52dca\n�\u0001\n\\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java\u0012,e\\d\\ed1af5418afccb55c476b78cd53c5d7bcde5f81b\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java\u0012,a\\7\\a75719d405b1ec82a10621e882866235d114ad2f
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/sonarlint/issuestore/index.pb b/.idea/sonarlint/issuestore/index.pb
+--- a/.idea/sonarlint/issuestore/index.pb	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/.idea/sonarlint/issuestore/index.pb	(date 1715688583267)
+@@ -112,4 +112,12 @@
+ �
+ \backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java,e\d\ed1af5418afccb55c476b78cd53c5d7bcde5f81b
+ �
+-Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
+\ No newline at end of file
++Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
++�
++Sbackend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java,f\b\fb88a36789a1c4cef86499957dcd52794689de4d
++�
++Ubackend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java,6\6\66adc0a998155d33c07110f1d208d0ebf3292f9b
++�
++Rbackend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java,6\f\6f9a5798589350c4d5f4281c90ba4767cd5eb613
++�
++Tbackend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java,9\3\932dc0c2733c269d38b7b8b5b7421a1758f191ab
+\ No newline at end of file
+Index: backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.resources;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.factory.Factory;\r\nimport com.devsuperior.dscatalog.services.ProductService;\r\nimport com.devsuperior.dscatalog.services.exceptions.DatabaseException;\r\nimport com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\r\nimport org.springframework.boot.test.mock.mockito.MockBean;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\nimport org.springframework.test.web.servlet.ResultActions;\r\n\r\nimport java.util.List;\r\n\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.ArgumentMatchers.eq;\r\nimport static org.mockito.Mockito.*;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;\r\n\r\n@WebMvcTest(ProductResource.class)\r\nclass ProductResourceTests {\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @MockBean\r\n    private ProductService service;\r\n\r\n    // Vamos precisar do ObjectMapper para converter o obj ProductDTO para JSON\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    private long existingId;\r\n    private long dependentId;\r\n    private long nonExistingId;\r\n\r\n    private ProductDTO productDTO;\r\n    private PageImpl<ProductDTO> page;\r\n\r\n    @BeforeEach\r\n    void setUp() throws Exception {\r\n        existingId = 1L;\r\n        dependentId = 2L;\r\n        nonExistingId = 3L;\r\n\r\n        productDTO = Factory.createProductDTO();\r\n\r\n        // Instanciando uma página de productDTO\r\n        page = new PageImpl<>(List.of(productDTO));\r\n\r\n        when(service.findAllPaged(any())).thenReturn(page);\r\n        when(service.save(any())).thenReturn(productDTO);\r\n        when(service.findById(existingId)).thenReturn(productDTO);\r\n        when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);\r\n        doNothing().when(service).delete(existingId);\r\n        doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);\r\n        doThrow(DatabaseException.class).when(service).delete(dependentId);\r\n\r\n        // Vamos precisar do eq() para evitar alguns erros de compilação\r\n        when(service.update(eq(existingId), any())).thenReturn(productDTO);\r\n\r\n        // Aqui é ResourceNotFoundException, pois o método update do service pega a exceção EntityNotFoundException\r\n        // e lança a ResourceNotFoundException baseada nela\r\n        when(service.update(eq(nonExistingId), any())).thenThrow(ResourceNotFoundException.class);\r\n    }\r\n\r\n    @Test\r\n    void findAllShouldReturnPage() throws Exception {\r\n        // O método perform faz uma requisição HTTP para a URI especificada\r\n        ResultActions result = mockMvc.perform(get(\"/products\").accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isOk());\r\n    }\r\n\r\n    @Test\r\n    void findByIdShouldReturnProductDTOWhenIdExists() throws Exception {\r\n        ResultActions result = mockMvc.perform(get(\"/products/{id}\", existingId).accept(MediaType.APPLICATION_JSON));\r\n\r\n\r\n        // O método jsonPath() analisa o corpo da resposta, o $ acessa o obj da resposta, e o .id acessa o atributo id\r\n        result.andExpect(status().isOk());\r\n        result.andExpect(jsonPath(\"$.id\").exists());\r\n        result.andExpect(jsonPath(\"$.name\").exists());\r\n        result.andExpect(jsonPath(\"$.description\").exists());\r\n    }\r\n\r\n    @Test\r\n    void findByIdShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() throws Exception {\r\n        ResultActions result = mockMvc.perform(get(\"/products/{id}\", nonExistingId).accept(MediaType.APPLICATION_JSON));\r\n        result.andExpect(status().isNotFound());\r\n    }\r\n\r\n    @Test\r\n    void updateShouldReturnProductDTOWhenIdExists() throws Exception {\r\n        // Vamos precisar converter o nosso obj ProductDTO (java) para JSON (texto), que é o formato do corpo da requisição\r\n        String jsonBody = objectMapper.writeValueAsString(productDTO);\r\n\r\n        ResultActions result = mockMvc.perform(put(\"/products/{id}\", existingId)\r\n                .content(jsonBody)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isOk());\r\n        result.andExpect(jsonPath(\"$.id\").exists());\r\n        result.andExpect(jsonPath(\"$.name\").exists());\r\n        result.andExpect(jsonPath(\"$.description\").exists());\r\n    }\r\n\r\n    @Test\r\n    void updateShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {\r\n        String jsonBody = objectMapper.writeValueAsString(productDTO);\r\n\r\n        ResultActions result = mockMvc.perform(put(\"/products/{id}\", nonExistingId)\r\n                .content(jsonBody)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isNotFound());\r\n    }\r\n\r\n    @Test\r\n    void createShouldReturnProductDTOCreated() throws Exception {\r\n        String jsonBody = objectMapper.writeValueAsString(productDTO);\r\n\r\n        ResultActions result = mockMvc.perform(post(\"/products\")\r\n                .content(jsonBody)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .accept(MediaType.APPLICATION_JSON));\r\n\r\n        result.andExpect(status().isCreated());\r\n        result.andExpect(jsonPath(\"$.id\").exists());\r\n        result.andExpect(jsonPath(\"$.name\").exists());\r\n        result.andExpect(jsonPath(\"$.description\").exists());\r\n    }\r\n\r\n    @Test\r\n    void deleteShouldReturnNoContentWhenIdExists() throws Exception {\r\n        ResultActions result = mockMvc.perform(delete(\"/products/{id}\", existingId));\r\n\r\n        result.andExpect(status().isNoContent());\r\n    }\r\n\r\n    @Test\r\n    void deleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {\r\n        ResultActions result = mockMvc.perform(delete(\"/products/{id}\", nonExistingId));\r\n\r\n        result.andExpect(status().isNotFound());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java b/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java
+--- a/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java	(date 1715687588364)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.resources;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.factory.Factory;
+ import com.devsuperior.dscatalog.services.ProductService;
+ import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.dto.response;\r\n\r\nimport lombok.AllArgsConstructor;\r\nimport lombok.Getter;\r\nimport lombok.NoArgsConstructor;\r\nimport lombok.Setter;\r\n\r\nimport java.util.HashSet;\r\nimport java.util.Set;\r\n\r\n@NoArgsConstructor\r\n@AllArgsConstructor\r\n@Getter\r\n@Setter\r\npublic class UserResponseDTO {\r\n    private Long id;\r\n\r\n    private String firstName;\r\n    private String lastName;\r\n    private String email;\r\n    private Set<RoleResponseDTO> roles = new HashSet<>();\r\n\r\n    public void addRole(RoleResponseDTO role) {\r\n        roles.add(role);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java	(date 1715687052463)
+@@ -5,8 +5,8 @@
+ import lombok.NoArgsConstructor;
+ import lombok.Setter;
+ 
+-import java.util.HashSet;
+-import java.util.Set;
++import java.util.ArrayList;
++import java.util.List;
+ 
+ @NoArgsConstructor
+ @AllArgsConstructor
+@@ -18,7 +18,7 @@
+     private String firstName;
+     private String lastName;
+     private String email;
+-    private Set<RoleResponseDTO> roles = new HashSet<>();
++    private List<RoleResponseDTO> roles = new ArrayList<>();
+ 
+     public void addRole(RoleResponseDTO role) {
+         roles.add(role);
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java
+rename from backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java
+rename to backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java	(date 1715687588274)
+@@ -1,6 +1,5 @@
+-package com.devsuperior.dscatalog.dto;
++package com.devsuperior.dscatalog.dto.request;
+ 
+-import com.fasterxml.jackson.annotation.JsonInclude;
+ import jakarta.validation.constraints.*;
+ import lombok.AllArgsConstructor;
+ import lombok.Getter;
+@@ -11,19 +10,17 @@
+ import java.io.Serial;
+ import java.io.Serializable;
+ import java.time.Instant;
+-import java.util.HashSet;
+-import java.util.Set;
++import java.util.ArrayList;
++import java.util.List;
+ 
+ @Setter
+ @Getter
+ @AllArgsConstructor
+ @NoArgsConstructor
+-public class ProductDTO implements Serializable {
++public class ProductRequestDTO implements Serializable {
+     @Serial
+     private static final long serialVersionUID = 1L;
+ 
+-    private Long id;
+-
+     @NotBlank(message = "Campo requerido")
+     @Size(min = 10, max = 60, message = "O nome do produto deve ter entre {min} e {max} caracteres")
+     private String name;
+@@ -32,6 +29,7 @@
+     @Size(min = 20, max = 200, message = "A descrição do produto deve ter entre {min} e {max} caracteres")
+     private String description;
+ 
++    @NotNull(message = "Campo requerido")
+     @Positive(message = "O preço deve ser um valor positivo")
+     private Double price;
+ 
+@@ -39,10 +37,12 @@
+     @URL(message = "Esse campo deve ser uma URL")
+     private String imgUrl;
+ 
++    @NotNull(message = "Campo requerido")
+     @PastOrPresent(message = "A data do produto não pode ser futura")
+     private Instant date;
+ 
+-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+-    private Set<CategoryDTO> categories = new HashSet<>();
++    @NotNull(message = "Campo requerido")
++    @NotEmpty(message = "Esse campo não pode ser vazio")
++    private List<Long> categories = new ArrayList<>();
+ 
+ }
+Index: .idea/sonarlint/securityhotspotstore/index.pb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\nv\nFbackend/src/main/java/com/devsuperior/dscatalog/entities/Category.java\u0012,b\\5\\b5dd1dec7933a04237f9b9e1b879be0cb514cb9b\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java\u0012,a\\9\\a93a61c744fac2b96739617abf08392d720f1bc1\n?\n\u000Fbackend/pom.xml\u0012,f\\9\\f9590cd73598b6f2427c8b1327d922c50d1dc504\nB\n\u0012backend/.gitignore\u0012,7\\e\\7e16691a9fc60084a157565ec422c8094d3df67c\n�\u0001\nTbackend/src/main/java/com/devsuperior/dscatalog/repositories/CategoryRepository.java\u0012,a\\6\\a68e5ea34e0e94b8b9ae8be3716f329865819ab1\n}\nMbackend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java\u0012,9\\5\\95797ebd2b2eb4d71cec091745736eb5fe04e492\nt\nDbackend/src/main/java/com/devsuperior/dscatalog/dto/CategoryDTO.java\u0012,8\\7\\87dd08ff3525e9f22b14934070a317812b7b3f52\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/CategoryMapperToDTO.java\u0012,e\\5\\e541c25c5c74af88a84da3edf05ce98b438d406a\n�\u0001\nWbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/StandardError.java\u0012,9\\2\\92c14a3e0b817b0e13d043f20a6bd77863d3d000\n�\u0001\nbbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java\u0012,9\\2\\9285f2c8331ca7e0ee84bc6920b0c2f366a15f6e\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/mappers/toModel/CategoryMapperToModel.java\u0012,7\\8\\7826de9201a75cd905165e679b1f23ce394fb5ef\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/CategoryMapperToModel.java\u0012,d\\6\\d6b6c2708feb3e37939f9bcd712d905f54b3f1d8\n�\u0001\nbbackend/src/main/java/com/devsuperior/dscatalog/services/exceptions/ResourceNotFoundException.java\u0012,2\\3\\23dee99add0137af7866faffa0b92793f3286d1b\n�\u0001\nZbackend/src/main/java/com/devsuperior/dscatalog/services/exceptions/DatabaseException.java\u0012,3\\0\\30185efb4b692bb61cfe22a5c2393a66a74926fe\nu\nEbackend/src/main/java/com/devsuperior/dscatalog/entities/Product.java\u0012,5\\c\\5c7afee3bdcfe2c5f93e968ede86d599d2d43357\ns\nCbackend/src/main/java/com/devsuperior/dscatalog/dto/ProductDTO.java\u0012,a\\7\\a75f8d80dca04c67a4400faeb8e8109528ebbe29\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/ProductMapperToDTO.java\u0012,c\\5\\c515f05faf9298b360b54df71d5cfe6df15890a2\n�\u0001\nYbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/ProductMapperToModel.java\u0012,1\\9\\196d08cdc2bd434d7d8d9b8f0db2e04c95c41d5b\n�\u0001\nSbackend/src/main/java/com/devsuperior/dscatalog/repositories/ProductRepository.java\u0012,b\\a\\baae5da91233393d10dd6cb5dec3876f799f3c84\n|\nLbackend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java\u0012,c\\7\\c7a40e27587775089522f7c0a1c004c6858c0b61\n~\nNbackend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java\u0012,7\\6\\76381c0fc68d5e0b390d7d0c9f487fc8b967ed02\nw\nGbackend/src/main/java/com/devsuperior/dscatalog/dto/CategoryMinDTO.java\u0012,1\\7\\171b918aa39bb408f20fd2dbe1fbd07c8650db5a\nv\nFbackend/src/main/java/com/devsuperior/dscatalog/dto/ProductMinDTO.java\u0012,8\\6\\86f3a79d89531f6ae50ff2611c7540906f4e292d\nw\nGbackend/src/main/java/com/devsuperior/dscatalog/mappers/BaseMapper.java\u0012,1\\a\\1adad8c9e160137ba9b43b4194b2ceabcc4bc7cd\n~\nNbackend/src/test/java/com/devsuperior/dscatalog/DscatalogApplicationTests.java\u0012,6\\0\\601ee95745b6346fab35b60804c6b53f667980f5\n�\u0001\nXbackend/src/test/java/com/devsuperior/dscatalog/repositories/ProductRepositoryTests.java\u0012,a\\7\\a7d26d50c568cdb86bf1c38354c09c74e722a6cc\nt\nDbackend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java\u0012,6\\f\\6f6401c67a476a03c1e5adc293a2e3d256139b49\n�\u0001\nQbackend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java\u0012,8\\5\\853c47ffda38eec540f7b020e897b186d54ab1e7\n�\u0001\nSbackend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java\u0012,b\\1\\b11c516bf216dcc155aedac4570f1e654a434f85\n~\nNbackend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java\u0012,c\\9\\c98f6632021bf5f13331d6135182815c87b62390\n�\u0001\nPbackend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java\u0012,a\\6\\a690ead7d4c8816323c8e8743892f72ae3780341\nr\nBbackend/src/main/java/com/devsuperior/dscatalog/entities/Role.java\u0012,e\\c\\ec2b27c511daf8c2ab9a073f5f338b895da10ba3\nr\nBbackend/src/main/java/com/devsuperior/dscatalog/entities/User.java\u0012,4\\d\\4d1634bc2ecefcf684d69b6fb54aab618d139394\ny\nIbackend/src/main/java/com/devsuperior/dscatalog/DscatalogApplication.java\u0012,c\\b\\cbcc56e56d140692a2829f1c31cd84bcb39d4459\n�\u0001\nPbackend/src/main/java/com/devsuperior/dscatalog/repositories/UserRepository.java\u0012,6\\4\\64db3df88a7c360fdd196fed00f1a8093387911c\ny\nIbackend/src/main/java/com/devsuperior/dscatalog/services/UserService.java\u0012,5\\d\\5dec2b166f9d6108bc19f79f7bd0329ef2009fa6\n�\u0001\nQbackend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseDTO.java\u0012,3\\3\\3362fb1dbcd8a6752aa86a9fa0b9d86419cee9ce\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestDTO.java\u0012,f\\4\\f45988e941a4c1869a3de3f5a73ecd812ef606fa\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java\u0012,1\\9\\197b1f6e4b9dbf9ad56c3cb3eea80eb2bdc5b8b0\n�\u0001\nRbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java\u0012,5\\6\\565654abc34aaab5f921a8446b750b7bef9dbc7a\n\u007F\nObackend/src/main/java/com/devsuperior/dscatalog/dto/request/RoleRequestDTO.java\u0012,a\\d\\adc6e038b2aa2f630e4a1331077510e4fb45b002\n�\u0001\nQbackend/src/main/java/com/devsuperior/dscatalog/dto/response/RoleResponseDTO.java\u0012,8\\8\\882f75d6898a1098b5a0f6170cfe0e951dc94fca\n�\u0001\nRbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/RoleMapperToDTO.java\u0012,6\\7\\677ab0f455661fbed0d4e6d54aaa6693b728e28d\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/RoleMapperToModel.java\u0012,5\\5\\558e8a05d13e954aeed5bde222fa4991cb68c33a\n{\nKbackend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java\u0012,4\\9\\495578f52f366d4cb51131e86510ea2141a38baa\n�\u0001\nPbackend/src/main/java/com/devsuperior/dscatalog/repositories/RoleRepository.java\u0012,0\\d\\0d2633e53cf9085a41f0a24178c607c9e930a7e8\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java\u0012,5\\8\\580dd1be8fedb3fbe945d065d61e085656ed4271\n�\u0001\nWbackend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseInsertDTO.java\u0012,4\\c\\4c987d3576ce2baa85826a8e5fb508d0ec721e4a\nu\nEbackend/src/main/java/com/devsuperior/dscatalog/config/AppConfig.java\u0012,e\\6\\e604f625d79b93a48d4775db65afcf46a6b1dc75\nz\nJbackend/src/main/java/com/devsuperior/dscatalog/config/SecurityConfig.java\u0012,9\\0\\90404282227ca06016d6b5224cb4857a0e5d8ea6\n�\u0001\nVbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/FieldMessage.java\u0012,7\\3\\734897a36296a6091d6d944f455c46f304c87e03\n�\u0001\nYbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ValidationError.java\u0012,9\\d\\9dc5db7923eae002f37505b5566d1aee141243df\n�\u0001\nXbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValid.java\u0012,1\\d\\1de5f94513b36a84d6c60dd1e2bc56b4efe693fb\n�\u0001\n\\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserInsertValidator.java\u0012,a\\5\\a57e6fd1f10b9be83aff26cf60f60a00cd4a0397\n�\u0001\nXbackend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValid.java\u0012,d\\6\\d6f76ea172c89bd9cd74ceaf1048d24187f52dca\n�\u0001\n\\backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java\u0012,e\\d\\ed1af5418afccb55c476b78cd53c5d7bcde5f81b\n�\u0001\nUbackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java\u0012,a\\7\\a75719d405b1ec82a10621e882866235d114ad2f
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/sonarlint/securityhotspotstore/index.pb b/.idea/sonarlint/securityhotspotstore/index.pb
+--- a/.idea/sonarlint/securityhotspotstore/index.pb	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/.idea/sonarlint/securityhotspotstore/index.pb	(date 1715688583273)
+@@ -112,4 +112,12 @@
+ �
+ \backend/src/main/java/com/devsuperior/dscatalog/services/validation/UserUpdateValidator.java,e\d\ed1af5418afccb55c476b78cd53c5d7bcde5f81b
+ �
+-Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
+\ No newline at end of file
++Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
++�
++Sbackend/src/main/java/com/devsuperior/dscatalog/dto/request/CategoryRequestDTO.java,f\b\fb88a36789a1c4cef86499957dcd52794689de4d
++�
++Ubackend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java,6\6\66adc0a998155d33c07110f1d208d0ebf3292f9b
++�
++Rbackend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java,6\f\6f9a5798589350c4d5f4281c90ba4767cd5eb613
++�
++Tbackend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java,9\3\932dc0c2733c269d38b7b8b5b7421a1758f191ab
+\ No newline at end of file
+Index: backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.factory;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.entities.Category;\r\nimport com.devsuperior.dscatalog.entities.Product;\r\nimport com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;\r\nimport com.devsuperior.dscatalog.mappers.todto.ProductMapperToDTO;\r\n\r\nimport java.time.Instant;\r\n\r\npublic class Factory {\r\n    public static Product createProduct() {\r\n        Product product = new Product(1L, \"Phone\", \"Good phone\", 800.0, \"https://img.com/img.png\", Instant.parse(\"2020-10-20T03:00:00Z\"));\r\n        product.getCategories().add(Factory.createCategory());\r\n        return product;\r\n    }\r\n\r\n    public static Category createCategory() {\r\n        return new Category(2L, \"Electronics\");\r\n    }\r\n\r\n    public static ProductDTO createProductDTO() {\r\n        Product product = createProduct();\r\n        return ProductMapperToDTO.converter(product, true);\r\n    }\r\n\r\n    public static CategoryDTO createCategoryDTO() {\r\n        Category category = createCategory();\r\n        return CategoryMapperToDTO.converter(category, true);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java b/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java
+--- a/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java	(date 1715687588331)
+@@ -1,7 +1,5 @@
+ package com.devsuperior.dscatalog.factory;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.entities.Category;
+ import com.devsuperior.dscatalog.entities.Product;
+ import com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.todto;\r\n\r\nimport com.devsuperior.dscatalog.dto.response.UserResponseDTO;\r\nimport com.devsuperior.dscatalog.dto.response.UserResponseInsertDTO;\r\nimport com.devsuperior.dscatalog.entities.User;\r\nimport org.springframework.beans.BeanUtils;\r\n\r\npublic class UserMapperToDTO {\r\n    private UserMapperToDTO() {\r\n    }\r\n\r\n    public static UserResponseDTO converter(User entity) {\r\n        UserResponseDTO dto = new UserResponseDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"roles\", \"password\");\r\n//        Set<RoleResponseDTO> roles = entity.getRoles().stream().map(RoleMapperToDTO::converter).collect(Collectors.toSet());\r\n//        dto.setRoles(roles);\r\n        entity.getRoles().stream().map(RoleMapperToDTO::converter).forEach(dto::addRole);\r\n        return dto;\r\n    }\r\n\r\n    public static UserResponseInsertDTO converterInsert(User entity) {\r\n        UserResponseInsertDTO dto = new UserResponseInsertDTO();\r\n        BeanUtils.copyProperties(entity, dto, \"roles\", \"password\");\r\n//        Set<RoleResponseDTO> roles = entity.getRoles().stream().map(RoleMapperToDTO::converter).collect(Collectors.toSet());\r\n//        dto.setRoles(roles);\r\n        entity.getRoles().stream().map(RoleMapperToDTO::converter).forEach(dto::addRole);\r\n        return dto;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/todto/UserMapperToDTO.java	(date 1715687955632)
+@@ -1,7 +1,6 @@
+ package com.devsuperior.dscatalog.mappers.todto;
+ 
+ import com.devsuperior.dscatalog.dto.response.UserResponseDTO;
+-import com.devsuperior.dscatalog.dto.response.UserResponseInsertDTO;
+ import com.devsuperior.dscatalog.entities.User;
+ import org.springframework.beans.BeanUtils;
+ 
+@@ -12,18 +11,14 @@
+     public static UserResponseDTO converter(User entity) {
+         UserResponseDTO dto = new UserResponseDTO();
+         BeanUtils.copyProperties(entity, dto, "roles", "password");
+-//        Set<RoleResponseDTO> roles = entity.getRoles().stream().map(RoleMapperToDTO::converter).collect(Collectors.toSet());
+-//        dto.setRoles(roles);
+         entity.getRoles().stream().map(RoleMapperToDTO::converter).forEach(dto::addRole);
+         return dto;
+     }
+ 
+-    public static UserResponseInsertDTO converterInsert(User entity) {
+-        UserResponseInsertDTO dto = new UserResponseInsertDTO();
+-        BeanUtils.copyProperties(entity, dto, "roles", "password");
+-//        Set<RoleResponseDTO> roles = entity.getRoles().stream().map(RoleMapperToDTO::converter).collect(Collectors.toSet());
+-//        dto.setRoles(roles);
+-        entity.getRoles().stream().map(RoleMapperToDTO::converter).forEach(dto::addRole);
+-        return dto;
+-    }
++//    public static UserResponseInsertDTO converterInsert(User entity) {
++//        UserResponseInsertDTO dto = new UserResponseInsertDTO();
++//        BeanUtils.copyProperties(entity, dto, "roles", "password");
++//        entity.getRoles().stream().map(RoleMapperToDTO::converter).forEach(dto::addRole);
++//        return dto;
++//    }
+ }
+Index: backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.resources;\r\n\r\nimport com.devsuperior.dscatalog.dto.CategoryDTO;\r\nimport com.devsuperior.dscatalog.services.CategoryService;\r\nimport jakarta.validation.Valid;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Sort;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;\r\n\r\nimport java.net.URI;\r\n\r\n@RestController\r\n@RequestMapping(value = \"/categories\")\r\npublic class CategoryResource {\r\n    private final CategoryService service;\r\n\r\n    public CategoryResource(CategoryService service) {\r\n        this.service = service;\r\n    }\r\n\r\n    @GetMapping\r\n    public ResponseEntity<Page<CategoryDTO>> findAllPaged(\r\n            @RequestParam(value = \"page\", defaultValue = \"0\") Integer page,\r\n            @RequestParam(value = \"linesPerPage\", defaultValue = \"5\") Integer linesPerPage,\r\n            @RequestParam(value = \"direction\", defaultValue = \"ASC\") String direction,\r\n            @RequestParam(value = \"orderBy\", defaultValue = \"name\") String orderBy) {\r\n\r\n        PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);\r\n        Page<CategoryDTO> result = service.findAllPaged(pageRequest);\r\n        return ResponseEntity.ok().body(result);\r\n    }\r\n\r\n    @GetMapping(value = \"/{id}\")\r\n    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {\r\n        return ResponseEntity.ok().body(service.findById(id));\r\n    }\r\n\r\n    @PostMapping\r\n    public ResponseEntity<CategoryDTO> save(@Valid @RequestBody CategoryDTO payload) {\r\n        CategoryDTO response = service.save(payload);\r\n        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path(\"/{id}\").buildAndExpand(response.getId()).toUri();\r\n        return ResponseEntity.created(uri).body(response);\r\n    }\r\n\r\n    @PutMapping(value = \"/{id}\")\r\n    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryDTO payload) {\r\n        return ResponseEntity.ok().body(service.update(id, payload));\r\n    }\r\n\r\n    @DeleteMapping(value = \"/{id}\")\r\n    public ResponseEntity<Void> delete(@PathVariable Long id) {\r\n        service.delete(id);\r\n        return ResponseEntity.noContent().build();\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java b/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java	(date 1715687294768)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.resources;
+ 
+-import com.devsuperior.dscatalog.dto.CategoryDTO;
+ import com.devsuperior.dscatalog.services.CategoryService;
+ import jakarta.validation.Valid;
+ import org.springframework.data.domain.Page;
+Index: backend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java
+new file mode 100644
+--- /dev/null	(date 1715687295041)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/dto/response/CategoryResponseDTO.java	(date 1715687295041)
+@@ -0,0 +1,21 @@
++package com.devsuperior.dscatalog.dto.response;
++
++import lombok.AllArgsConstructor;
++import lombok.Getter;
++import lombok.NoArgsConstructor;
++import lombok.Setter;
++
++import java.io.Serial;
++import java.io.Serializable;
++
++@Setter
++@Getter
++@AllArgsConstructor
++@NoArgsConstructor
++public class CategoryResponseDTO implements Serializable {
++    @Serial
++    private static final long serialVersionUID = 1L;
++
++    private Long id;
++    private String name;
++}
+Index: backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.services;\r\n\r\nimport com.devsuperior.dscatalog.dto.ProductDTO;\r\nimport com.devsuperior.dscatalog.repositories.ProductRepository;\r\nimport com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.context.SpringBootTest;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Sort;\r\nimport org.springframework.transaction.annotation.Transactional;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\n\r\n@SpringBootTest\r\n@Transactional // Essa annotation garante que haja um Rollback no banco após cada teste, assim um teste não irá influenciar no outro.\r\nclass ProductServiceIT {\r\n    // Vamos usar o autowired inves do mock, pois eu quero testar o componente em si, e não seu mock.\r\n    @Autowired\r\n    private ProductService service;\r\n\r\n    @Autowired\r\n    private ProductRepository repository;\r\n\r\n    private Long existingId;\r\n    private Long nonExistingId;\r\n    private Long countTotalProducts;\r\n\r\n    @BeforeEach\r\n    void setUp() throws Exception {\r\n        existingId = 1L;\r\n        nonExistingId = 1000L;\r\n        countTotalProducts = 25L;\r\n    }\r\n\r\n    @Test\r\n    void deleteShouldDeleteResourceWhenIdExists() {\r\n        service.delete(existingId);\r\n        assertEquals(countTotalProducts - 1, repository.count());\r\n    }\r\n\r\n    @Test\r\n    void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {\r\n        assertThrows(ResourceNotFoundException.class, () -> {\r\n            service.delete(nonExistingId);\r\n        });\r\n    }\r\n\r\n    @Test\r\n    void findAllPagedShouldReturnPageWhenPage0Size10() {\r\n        PageRequest pageRequest = PageRequest.of(0, 10);\r\n        Page<ProductDTO> result = service.findAllPaged(pageRequest);\r\n\r\n        assertFalse(result.isEmpty());\r\n        assertEquals(0, result.getNumber()); // Testando número da página\r\n        assertEquals(10, result.getSize()); // Testando tamanho da página\r\n        assertEquals(countTotalProducts, result.getTotalElements()); // Testando total de elementos\r\n    }\r\n\r\n    @Test\r\n    void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExist() {\r\n        PageRequest pageRequest = PageRequest.of(50, 10);\r\n        Page<ProductDTO> result = service.findAllPaged(pageRequest);\r\n        assertTrue(result.isEmpty());\r\n    }\r\n\r\n    @Test\r\n    void findAllPagedShouldReturnSortedPageWhenSortByName() {\r\n        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(\"name\"));\r\n        Page<ProductDTO> result = service.findAllPaged(pageRequest);\r\n\r\n        assertFalse(result.isEmpty());\r\n        assertEquals(\"Macbook Pro\", result.getContent().get(0).getName());\r\n        assertEquals(\"PC Gamer\", result.getContent().get(1).getName());\r\n        assertEquals(\"PC Gamer Alfa\", result.getContent().get(2).getName());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java b/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java
+--- a/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java	(date 1715687588161)
+@@ -1,6 +1,5 @@
+ package com.devsuperior.dscatalog.services;
+ 
+-import com.devsuperior.dscatalog.dto.ProductDTO;
+ import com.devsuperior.dscatalog.repositories.ProductRepository;
+ import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+ import org.junit.jupiter.api.BeforeEach;
+Index: backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.devsuperior.dscatalog.mappers.tomodel;\r\n\r\nimport com.devsuperior.dscatalog.dto.request.UserRequestDTO;\r\nimport com.devsuperior.dscatalog.dto.request.UserRequestInsertDTO;\r\nimport com.devsuperior.dscatalog.entities.Role;\r\nimport com.devsuperior.dscatalog.entities.User;\r\nimport com.devsuperior.dscatalog.mappers.BaseMapper;\r\n\r\nimport java.util.Set;\r\n\r\npublic class UserMapperToModel extends BaseMapper {\r\n    private UserMapperToModel() {\r\n    }\r\n\r\n    public static User converter(UserRequestDTO dto, Set<Role> roles) {\r\n        User entity = new User();\r\n        mapProperties(dto, entity, \"roles\", \"password\");\r\n        roles.forEach(role -> entity.getRoles().add(role));\r\n        return entity;\r\n    }\r\n\r\n    public static void updateFromDto(User entity, UserRequestDTO dto, Set<Role> roles) {\r\n        mapProperties(dto, entity, \"roles\", \"password\");\r\n        entity.getRoles().clear();\r\n        roles.forEach(role -> entity.getRoles().add(role));\r\n    }\r\n\r\n    public static User converterInsert(UserRequestInsertDTO dto, Set<Role> roles) {\r\n        User entity = new User();\r\n        mapProperties(dto, entity, \"roles\", \"password\");\r\n        roles.forEach(role -> entity.getRoles().add(role));\r\n        return entity;\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java
+--- a/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java	(revision 8b6e96de6cb5d5c4e7529a6763ecb57053d441ec)
++++ b/backend/src/main/java/com/devsuperior/dscatalog/mappers/tomodel/UserMapperToModel.java	(date 1715688504023)
+@@ -9,25 +9,27 @@
+ import java.util.Set;
+ 
+ public class UserMapperToModel extends BaseMapper {
++    private static final String[] FIELDS_TO_IGNORE = new String[]{"roles", "password"};
++
+     private UserMapperToModel() {
+     }
+ 
+     public static User converter(UserRequestDTO dto, Set<Role> roles) {
+         User entity = new User();
+-        mapProperties(dto, entity, "roles", "password");
++        mapProperties(dto, entity, FIELDS_TO_IGNORE);
+         roles.forEach(role -> entity.getRoles().add(role));
+         return entity;
+     }
+ 
+     public static void updateFromDto(User entity, UserRequestDTO dto, Set<Role> roles) {
+-        mapProperties(dto, entity, "roles", "password");
++        mapProperties(dto, entity, FIELDS_TO_IGNORE);
+         entity.getRoles().clear();
+         roles.forEach(role -> entity.getRoles().add(role));
+     }
+ 
+-    public static User converterInsert(UserRequestInsertDTO dto, Set<Role> roles) {
++    public static User converter(UserRequestInsertDTO dto, Set<Role> roles) {
+         User entity = new User();
+-        mapProperties(dto, entity, "roles", "password");
++        mapProperties(dto, entity, FIELDS_TO_IGNORE);
+         roles.forEach(role -> entity.getRoles().add(role));
+         return entity;
+     }

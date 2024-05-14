@@ -1,7 +1,7 @@
 package com.devsuperior.dscatalog.services;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
-import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.dto.request.ProductRequestDTO;
+import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.mappers.todto.ProductMapperToDTO;
@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,37 +29,32 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAllPaged(Pageable page) {
-        return repository.findAll(page).map(products -> ProductMapperToDTO.converter(products, true));
+    public Page<ProductResponseDTO> findAllPaged(Pageable page) {
+        return repository.findAll(page).map(ProductMapperToDTO::converter);
     }
 
     @Transactional(readOnly = true)
-    public ProductDTO findById(Long id) {
+    public ProductResponseDTO findById(Long id) {
         Product entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        return ProductMapperToDTO.converter(entity, true);
+        return ProductMapperToDTO.converter(entity);
     }
 
     @Transactional
-    public ProductDTO save(ProductDTO payload) {
-        Product entity = ProductMapperToModel.converter(payload);
+    public ProductResponseDTO save(ProductRequestDTO payload) {
         Set<Category> listaCategorias = getCategoriesList(payload);
-        entity.setCategories(listaCategorias);
+        Product entity = ProductMapperToModel.converter(payload, listaCategorias);
         repository.save(entity);
-        return ProductMapperToDTO.converter(entity, true);
+        return ProductMapperToDTO.converter(entity);
     }
 
     @Transactional
-    public ProductDTO update(Long id, ProductDTO payload) {
+    public ProductResponseDTO update(Long id, ProductRequestDTO payload) {
         try {
             Product entity = repository.getReferenceById(id);
-            ProductMapperToModel.updateFromDto(entity, payload);
-            entity.getCategories().clear();
-
             Set<Category> listaCategorias = getCategoriesList(payload);
-            entity.setCategories(listaCategorias);
-
+            ProductMapperToModel.updateFromDto(entity, payload, listaCategorias);
             Product savedEntity = repository.save(entity);
-            return ProductMapperToDTO.converter(savedEntity, true);
+            return ProductMapperToDTO.converter(savedEntity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Produto de id " + id + "não encontrado");
         }
@@ -81,18 +74,14 @@ public class ProductService {
     }
 
 
-    private Set<Category> getCategoriesList(ProductDTO payload) {
-        Set<Long> categoryIds = payload.getCategories().stream()
-                .map(CategoryDTO::getId)
-                .collect(Collectors.toSet());
-        List<Category> foundCategories = categoryRepository.findAllById(categoryIds);
+    private Set<Category> getCategoriesList(ProductRequestDTO payload) {
+        Set<Category> categories = new HashSet<>();
+        payload.getCategories().forEach(categoryReq -> {
+            Category cat = categoryRepository.findById(categoryReq.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+            categories.add(cat);
+        });
 
-        if (foundCategories.size() != categoryIds.size()) {
-            categoryIds.removeAll(foundCategories.stream().map(Category::getId).collect(Collectors.toSet()));
-            throw new ResourceNotFoundException("Categoria(s) de id(s) " + categoryIds + " não encontrada(s)");
-        }
-
-        return new HashSet<>(foundCategories);
+        return categories;
     }
 
 }

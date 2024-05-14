@@ -4,7 +4,6 @@ import com.devsuperior.dscatalog.dto.request.UserRequestDTO;
 import com.devsuperior.dscatalog.dto.request.UserRequestInsertDTO;
 import com.devsuperior.dscatalog.dto.request.UserRequestUpdateDTO;
 import com.devsuperior.dscatalog.dto.response.UserResponseDTO;
-import com.devsuperior.dscatalog.dto.response.UserResponseInsertDTO;
 import com.devsuperior.dscatalog.entities.Role;
 import com.devsuperior.dscatalog.entities.User;
 import com.devsuperior.dscatalog.mappers.todto.UserMapperToDTO;
@@ -45,12 +44,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseInsertDTO save(UserRequestInsertDTO payload) {
+    public UserResponseDTO save(UserRequestInsertDTO payload) {
         Set<Role> roles = getRolesList(payload);
-        User entity = UserMapperToModel.converterInsert(payload, roles);
+        User entity = UserMapperToModel.converter(payload, roles);
         entity.setPassword(passwordEncoder.encode(payload.getPassword()));
         repository.save(entity);
-        return UserMapperToDTO.converterInsert(entity);
+        return UserMapperToDTO.converter(entity);
     }
 
 

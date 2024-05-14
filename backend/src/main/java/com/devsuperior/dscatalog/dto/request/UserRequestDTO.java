@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,5 +28,5 @@ public class UserRequestDTO {
     @Email(message = "Formato de e-mail inválido")
     private String email;
 
-    private Set<RoleRequestDTO> roles = new HashSet<>();
+    private List<RoleIdRequestDTO> roles = new ArrayList<>();
 }

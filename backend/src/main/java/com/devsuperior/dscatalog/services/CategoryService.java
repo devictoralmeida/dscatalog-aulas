@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.services;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
+import com.devsuperior.dscatalog.dto.request.CategoryRequestDTO;
+import com.devsuperior.dscatalog.dto.response.CategoryResponseDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;
 import com.devsuperior.dscatalog.mappers.tomodel.CategoryMapperToModel;
@@ -24,30 +25,30 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryDTO> findAllPaged(PageRequest page) {
-        return repository.findAll(page).map(category -> CategoryMapperToDTO.converter(category, true));
+    public Page<CategoryResponseDTO> findAllPaged(PageRequest page) {
+        return repository.findAll(page).map(CategoryMapperToDTO::converter);
     }
 
     @Transactional(readOnly = true)
-    public CategoryDTO findById(Long id) {
+    public CategoryResponseDTO findById(Long id) {
         Category entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
-        return CategoryMapperToDTO.converter(entity, true);
+        return CategoryMapperToDTO.converter(entity);
     }
 
     @Transactional
-    public CategoryDTO save(CategoryDTO payload) {
+    public CategoryResponseDTO save(CategoryRequestDTO payload) {
         Category entity = CategoryMapperToModel.converter(payload);
         repository.save(entity);
-        return CategoryMapperToDTO.converter(entity, true);
+        return CategoryMapperToDTO.converter(entity);
     }
 
     @Transactional
-    public CategoryDTO update(Long id, CategoryDTO payload) {
+    public CategoryResponseDTO update(Long id, CategoryRequestDTO payload) {
         try {
             Category entity = repository.getReferenceById(id);
             CategoryMapperToModel.updateFromDto(entity, payload);
             Category savedEntity = repository.save(entity);
-            return CategoryMapperToDTO.converter(savedEntity, true);
+            return CategoryMapperToDTO.converter(savedEntity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Categoria de id " + id + "não encontrada");
         }

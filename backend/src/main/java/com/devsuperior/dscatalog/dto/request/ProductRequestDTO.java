@@ -1,6 +1,5 @@
-package com.devsuperior.dscatalog.dto;
+package com.devsuperior.dscatalog.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,18 +10,16 @@ import org.hibernate.validator.constraints.URL;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO implements Serializable {
+public class ProductRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
-    private Long id;
 
     @NotBlank(message = "Campo requerido")
     @Size(min = 10, max = 60, message = "O nome do produto deve ter entre {min} e {max} caracteres")
@@ -32,6 +29,7 @@ public class ProductDTO implements Serializable {
     @Size(min = 20, max = 200, message = "A descrição do produto deve ter entre {min} e {max} caracteres")
     private String description;
 
+    @NotNull(message = "Campo requerido")
     @Positive(message = "O preço deve ser um valor positivo")
     private Double price;
 
@@ -39,10 +37,12 @@ public class ProductDTO implements Serializable {
     @URL(message = "Esse campo deve ser uma URL")
     private String imgUrl;
 
+    @NotNull(message = "Campo requerido")
     @PastOrPresent(message = "A data do produto não pode ser futura")
     private Instant date;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Set<CategoryDTO> categories = new HashSet<>();
+    @NotNull(message = "Campo requerido")
+    @NotEmpty(message = "Esse campo não pode ser vazio")
+    private List<CategoryIdRequestDTO> categories = new ArrayList<>();
 
 }

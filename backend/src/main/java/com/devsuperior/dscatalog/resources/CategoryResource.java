@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.resources;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
+import com.devsuperior.dscatalog.dto.request.CategoryRequestDTO;
+import com.devsuperior.dscatalog.dto.response.CategoryResponseDTO;
 import com.devsuperior.dscatalog.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -22,31 +23,31 @@ public class CategoryResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CategoryDTO>> findAllPaged(
+    public ResponseEntity<Page<CategoryResponseDTO>> findAllPaged(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "5") Integer linesPerPage,
             @RequestParam(value = "direction", defaultValue = "ASC") String direction,
             @RequestParam(value = "orderBy", defaultValue = "name") String orderBy) {
 
         PageRequest pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
-        Page<CategoryDTO> result = service.findAllPaged(pageRequest);
+        Page<CategoryResponseDTO> result = service.findAllPaged(pageRequest);
         return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDTO> save(@Valid @RequestBody CategoryDTO payload) {
-        CategoryDTO response = service.save(payload);
+    public ResponseEntity<CategoryResponseDTO> save(@Valid @RequestBody CategoryRequestDTO payload) {
+        CategoryResponseDTO response = service.save(payload);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryDTO payload) {
+    public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO payload) {
         return ResponseEntity.ok().body(service.update(id, payload));
     }
 

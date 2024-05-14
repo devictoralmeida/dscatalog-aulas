@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +18,7 @@ public class UserResponseDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private Set<RoleResponseDTO> roles = new HashSet<>();
+    private List<RoleResponseDTO> roles = new ArrayList<>();
 
     public void addRole(RoleResponseDTO role) {
         roles.add(role);

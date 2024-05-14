@@ -1,7 +1,7 @@
 package com.devsuperior.dscatalog.factory;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
-import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.dto.response.CategoryResponseDTO;
+import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.mappers.todto.CategoryMapperToDTO;
@@ -20,13 +20,13 @@ public class Factory {
         return new Category(2L, "Electronics");
     }
 
-    public static ProductDTO createProductDTO() {
+    public static ProductResponseDTO createProductDTO() {
         Product product = createProduct();
-        return ProductMapperToDTO.converter(product, true);
+        return ProductMapperToDTO.converter(product);
     }
 
-    public static CategoryDTO createCategoryDTO() {
+    public static CategoryResponseDTO createCategoryDTO() {
         Category category = createCategory();
-        return CategoryMapperToDTO.converter(category, true);
+        return CategoryMapperToDTO.converter(category);
     }
 }

@@ -1,4 +1,4 @@
-package com.devsuperior.dscatalog.dto;
+package com.devsuperior.dscatalog.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,10 +12,9 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryMinDTO implements Serializable {
+public class RoleIdRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private String name;
 }

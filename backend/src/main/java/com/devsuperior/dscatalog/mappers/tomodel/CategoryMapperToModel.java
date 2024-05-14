@@ -1,32 +1,20 @@
 package com.devsuperior.dscatalog.mappers.tomodel;
 
-import com.devsuperior.dscatalog.dto.CategoryDTO;
+import com.devsuperior.dscatalog.dto.request.CategoryRequestDTO;
 import com.devsuperior.dscatalog.entities.Category;
-import com.devsuperior.dscatalog.entities.Product;
 import org.springframework.beans.BeanUtils;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CategoryMapperToModel {
     private CategoryMapperToModel() {
     }
 
-    public static Category converter(CategoryDTO dto) {
+    public static Category converter(CategoryRequestDTO dto) {
         Category entity = new Category();
-        BeanUtils.copyProperties(dto, entity, "products");
-
-        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());
-        entity.setProducts(products);
-
+        BeanUtils.copyProperties(dto, entity);
         return entity;
     }
 
-    public static void updateFromDto(Category entity, CategoryDTO dto) {
-        BeanUtils.copyProperties(dto, entity, "products", "id");
-        entity.getProducts().clear();
-
-        Set<Product> products = dto.getProducts().stream().map(ProductMapperToModel::converter).collect(Collectors.toSet());
-        entity.setProducts(products);
+    public static void updateFromDto(Category entity, CategoryRequestDTO dto) {
+        BeanUtils.copyProperties(dto, entity, "id");
     }
 }
