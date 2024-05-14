@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -35,6 +36,7 @@ public class ProductResource {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
     @PostMapping
     public ResponseEntity<ProductResponseDTO> save(@Valid @RequestBody ProductRequestDTO payload) {
         ProductResponseDTO response = service.save(payload);
@@ -42,11 +44,13 @@ public class ProductResource {
         return ResponseEntity.created(uri).body(response);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<ProductResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO payload) {
         return ResponseEntity.ok().body(service.update(id, payload));
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

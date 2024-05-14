@@ -1,0 +1,9 @@
+
+¢
+java:S1450'"_Remove the "authorizedScopes" field and declare it as a local variable in the relevant methods.(¹Ó…®8¥ğ«À÷1J$e9cb846f-384d-4e2a-98c2-5b464465a0d8
+š
+java:S1450&"WRemove the "password" field and declare it as a local variable in the relevant methods.(µ£ „8¦ğ«À÷1J$16b05941-dab8-4c96-ae36-f7ff5a546382
+š
+java:S1450%"WRemove the "username" field and declare it as a local variable in the relevant methods.(Ã•¯º8§ğ«À÷1J$ab648368-8639-4ba6-8c04-6f5f0645920b
+
+java:S6201„"TReplace this instanceof check and cast with 'instanceof ClaimAccessor claimaccessor'(¬¸±‚ÿÿÿÿÿ8‚­ÄÀ÷1J$30eb8dbe-ba61-40dd-a87b-7d6f051811e3
