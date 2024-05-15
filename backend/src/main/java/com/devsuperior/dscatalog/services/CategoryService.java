@@ -10,11 +10,11 @@ import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class CategoryService {
@@ -25,8 +25,8 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryResponseDTO> findAllPaged(PageRequest page) {
-        return repository.findAll(page).map(CategoryMapperToDTO::converter);
+    public List<CategoryResponseDTO> findAll() {
+        return repository.findAll().stream().map(CategoryMapperToDTO::converter).toList();
     }
 
     @Transactional(readOnly = true)

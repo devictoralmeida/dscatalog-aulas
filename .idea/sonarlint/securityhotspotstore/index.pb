@@ -49,8 +49,6 @@ Bbackend/src/main/java/com/devsuperior/dscatalog/entities/User.java,4\d\4d1634b
 backend/pom.xml,f\9\f9590cd73598b6f2427c8b1327d922c50d1dc504
 u
 Ebackend/src/main/java/com/devsuperior/dscatalog/config/AppConfig.java,e\6\e604f625d79b93a48d4775db65afcf46a6b1dc75
-z
-Jbackend/src/main/java/com/devsuperior/dscatalog/config/SecurityConfig.java,9\0\90404282227ca06016d6b5224cb4857a0e5d8ea6
 r
 Bbackend/src/main/java/com/devsuperior/dscatalog/entities/Role.java,e\c\ec2b27c511daf8c2ab9a073f5f338b895da10ba3
 €
@@ -91,3 +89,11 @@ Gbackend/src/main/java/com/devsuperior/dscatalog/mappers/BaseMapper.java,1\a\1a
 Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestUpdateDTO.java,a\7\a75719d405b1ec82a10621e882866235d114ad2f
 v
 Fbackend/src/main/java/com/devsuperior/dscatalog/entities/Category.java,b\5\b5dd1dec7933a04237f9b9e1b879be0cb514cb9b
+ƒ
+Sbackend/src/main/java/com/devsuperior/dscatalog/repositories/ProductRepository.java,b\a\baae5da91233393d10dd6cb5dec3876f799f3c84
+‚
+Rbackend/src/main/java/com/devsuperior/dscatalog/projections/ProductProjection.java,f\f\ff104d5f60f469cb80652049de36110eddd63417
+o
+?backend/src/main/java/com/devsuperior/dscatalog/util/Utils.java,c\1\c1b5e97426453480e0f12309797d609377ecd7e1
+‚
+Rbackend/src/main/java/com/devsuperior/dscatalog/mappers/todto/RoleMapperToDTO.java,6\7\677ab0f455661fbed0d4e6d54aaa6693b728e28d

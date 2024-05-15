@@ -5,22 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad1073fc-557f-4c95-a3c7-f167c12222fa" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/utils/TokenUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/projections/ProductProjection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/util/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/9/0/90404282227ca06016d6b5224cb4857a0e5d8ea6" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/9/0/90404282227ca06016d6b5224cb4857a0e5d8ea6" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/ProductRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/ProductResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/entities/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/ProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/CategoryResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/CategoryService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/factory/Factory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceIT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceIT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/data.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +87,8 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.jpb.viewMode&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -106,7 +104,7 @@
       <recent name="com.devsuperior.dscatalog.resources" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ProductResourceIT">
+  <component name="RunManager" selected="Spring Boot.DscatalogApplication">
     <configuration name="ProductResourceIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="dscatalog" />
       <extension name="coverage">
@@ -231,7 +229,9 @@
       <workItem from="1715634338387" duration="7791000" />
       <workItem from="1715686814238" duration="38000" />
       <workItem from="1715686893299" duration="4961000" />
-      <workItem from="1715703992237" duration="9190000" />
+      <workItem from="1715703992237" duration="9842000" />
+      <workItem from="1715715648101" duration="7404000" />
+      <workItem from="1715729032589" duration="2875000" />
     </task>
     <servers />
   </component>

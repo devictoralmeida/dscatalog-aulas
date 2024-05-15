@@ -6,20 +6,25 @@ import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.mappers.todto.ProductMapperToDTO;
 import com.devsuperior.dscatalog.mappers.tomodel.ProductMapperToModel;
+import com.devsuperior.dscatalog.projections.ProductProjection;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.devsuperior.dscatalog.util.Utils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -29,8 +34,21 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDTO> findAllPaged(Pageable page) {
-        return repository.findAll(page).map(ProductMapperToDTO::converter);
+    public Page<ProductResponseDTO> findAllPaged(String categoryId, String name, Pageable pageable) {
+        String[] ids = categoryId.split(",");
+        List<Long> categoryIds = Arrays.stream(ids).filter(id -> !id.isEmpty()).map(Long::parseLong).toList();
+        Page<ProductProjection> page = repository.searchProducts(categoryIds, name, pageable);
+
+        List<Long> productIds = page.map(ProductProjection::getId).toList();
+
+        // Ao chamar esse método com JPQL os resultados não estarão ordenados, sendo necessário ordenar manualmente.
+        List<Product> entities = repository.searchProductsWithCategories(productIds);
+
+        // Vamos chamar o método replace da classe Utils para ordenar a lista de produtos.
+        List<Product> orderedEntities = Utils.replace(page.getContent(), entities);
+
+        List<ProductResponseDTO> dtos = orderedEntities.stream().map(ProductMapperToDTO::converter).toList();
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
 
     @Transactional(readOnly = true)
