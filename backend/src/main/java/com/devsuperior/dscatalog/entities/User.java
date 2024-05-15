@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.entities;
 
+import com.devsuperior.dscatalog.projections.IdProjection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User implements Serializable, UserDetails {
+public class User implements Serializable, UserDetails, IdProjection<Long> {
     @Serial
     private static final long serialVersionUID = 1L;
 

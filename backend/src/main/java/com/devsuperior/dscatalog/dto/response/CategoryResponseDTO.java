@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.dto.response;
 
+import com.devsuperior.dscatalog.projections.IdProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryResponseDTO implements Serializable {
+public class CategoryResponseDTO implements Serializable, IdProjection<Long> {
     @Serial
     private static final long serialVersionUID = 1L;
 

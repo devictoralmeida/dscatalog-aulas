@@ -33,6 +33,7 @@ public class ProductService {
     private final ProductRepository repository;
     private final CategoryRepository categoryRepository;
 
+    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> findAllPaged(String categoryId, String name, Pageable pageable) {
         String[] ids = categoryId.split(",");
@@ -45,7 +46,7 @@ public class ProductService {
         List<Product> entities = repository.searchProductsWithCategories(productIds);
 
         // Vamos chamar o método replace da classe Utils para ordenar a lista de produtos.
-        List<Product> orderedEntities = Utils.replace(page.getContent(), entities);
+        List<Product> orderedEntities = (List<Product>) Utils.replace(page.getContent(), entities);
 
         List<ProductResponseDTO> dtos = orderedEntities.stream().map(ProductMapperToDTO::converter).toList();
         return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());

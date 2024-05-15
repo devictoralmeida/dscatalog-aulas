@@ -14,6 +14,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     // 1º vamos buscar os dados paginados dos produtos, pegando id e name (p/ ordenar) e depois vamos buscar as categorias deles.
     // Vamos precisar usar o count query, pois estamos utilizando uma query nativa com paginação (Pageable).
+    // Também vamos precisar criar um alias "AS tb_result" para ambas as consultas
     @Query(nativeQuery = true, value = """
             SELECT * FROM (
             SELECT DISTINCT tb_product.id, tb_product.name

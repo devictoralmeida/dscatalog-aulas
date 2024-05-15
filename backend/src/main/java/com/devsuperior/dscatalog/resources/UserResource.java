@@ -38,8 +38,7 @@ public class UserResource {
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    
     @PostMapping
     public ResponseEntity<UserResponseDTO> save(@Valid @RequestBody UserRequestInsertDTO payload) {
         UserResponseDTO response = service.save(payload);

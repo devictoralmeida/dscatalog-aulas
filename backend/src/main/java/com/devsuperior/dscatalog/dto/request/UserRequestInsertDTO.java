@@ -6,15 +6,17 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
 @Setter
 @UserInsertValid
 public class UserRequestInsertDTO extends UserRequestDTO implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "Campo requerido")
-    @Size(min = 6, max = 20, message = "A senha do usuário deve ter entre {min} e {max} caracteres")
+    @Size(min = 8, message = "A senha do usuário deve ter no mínimo {min} caracteres")
     private String password;
 }

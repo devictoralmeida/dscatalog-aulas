@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.entities;
 
+import com.devsuperior.dscatalog.projections.IdProjection;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Category implements Serializable {
+public class Category implements Serializable, IdProjection<Long> {
     @Serial
     private static final long serialVersionUID = 1L;
 

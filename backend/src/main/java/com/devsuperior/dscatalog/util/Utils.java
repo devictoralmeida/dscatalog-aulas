@@ -1,7 +1,6 @@
 package com.devsuperior.dscatalog.util;
 
-import com.devsuperior.dscatalog.entities.Product;
-import com.devsuperior.dscatalog.projections.ProductProjection;
+import com.devsuperior.dscatalog.projections.IdProjection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,18 +11,20 @@ public class Utils {
     private Utils() {
     }
 
-    public static List<Product> replace(List<ProductProjection> ordered, List<Product> unordered) {
+    // Método que retorna uma lista de qualquer classe que implemente a interface IdProjection, e também irá receber 2 parâmetros que implementa a mesma interface
+    // <ID> é o nome genérico do id, que pode ser Long, UUID, etc...
+    public static <ID> List<? extends IdProjection<ID>> replace(List<? extends IdProjection<ID>> ordered,
+                                                                List<? extends IdProjection<ID>> unordered) {
         // Vamos criar um map a partir da lista unordered, onde a chave será o id e o valor será o objeto.
         // Isso é feito para podermos acessar os objetos de forma mais eficiente e rápida.
-        Map<Long, Product> map = new HashMap<>();
-        for (Product obj : unordered) {
+        Map<ID, IdProjection<ID>> map = new HashMap<>();
+        for (IdProjection<ID> obj : unordered) {
             map.put(obj.getId(), obj);
         }
 
-        List<Product> result = new ArrayList<>();
-        for (ProductProjection obj : ordered) {
-            Product actualProduct = map.get(obj.getId());
-            result.add(actualProduct);
+        List<IdProjection<ID>> result = new ArrayList<>();
+        for (IdProjection<ID> obj : ordered) {
+            result.add(map.get(obj.getId()));
         }
         return result;
     }

@@ -53,6 +53,12 @@ public class UserService implements UserDetailsService {
         Set<Role> roles = getRolesList(payload);
         User entity = UserMapperToModel.converter(payload, roles);
         entity.setPassword(passwordEncoder.encode(payload.getPassword()));
+
+        // Vamos limpar todas as roles, pois por padrão será inserido como ROLE_OPERATOR no signup
+        entity.getRoles().clear();
+        Role role = roleRepository.findByAuthority("ROLE_OPERATOR");
+        entity.addRole(role);
+
         repository.save(entity);
         return UserMapperToDTO.converter(entity);
     }

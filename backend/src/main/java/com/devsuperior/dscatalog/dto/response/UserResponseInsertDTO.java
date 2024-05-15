@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.dto.response;
 
+import com.devsuperior.dscatalog.projections.IdProjection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserResponseInsertDTO extends UserResponseDTO implements Serializable {
+public class UserResponseInsertDTO extends UserResponseDTO implements Serializable, IdProjection<Long> {
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
