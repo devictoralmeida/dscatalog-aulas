@@ -103,17 +103,12 @@ Mbackend/src/main/java/com/devsuperior/dscatalog/projections/IdProjection.java,
 Wbackend/src/main/java/com/devsuperior/dscatalog/dto/response/UserResponseInsertDTO.java,4\c\4c987d3576ce2baa85826a8e5fb508d0ec721e4a
 J
 backend/docker-compose.yml,a\7\a78d734279d0159f1961e1f3594c47c0a0bda032
-:
-
-create.sql,c\4\c4e543c554b99ccccd987f50a97bdc2adf2ccccf
 …
 Ubackend/src/main/java/com/devsuperior/dscatalog/dto/request/UserRequestInsertDTO.java,5\8\580dd1be8fedb3fbe945d065d61e085656ed4271
 €
 Pbackend/src/main/java/com/devsuperior/dscatalog/repositories/RoleRepository.java,0\d\0d2633e53cf9085a41f0a24178c607c9e930a7e8
 €
 Pbackend/src/main/java/com/devsuperior/dscatalog/dto/request/EmailRequestDTO.java,a\a\aa167b323810765020a526c7779fc858c977d0bd
-ˆ
-Xbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/EmailException.java,c\1\c1538c03c3bcc3ded706312a07912cbbb8931b80
 ’
 bbackend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java,9\2\9285f2c8331ca7e0ee84bc6920b0c2f366a15f6e
 ‡
@@ -128,3 +123,5 @@ Ibackend/src/main/java/com/devsuperior/dscatalog/services/AuthService.java,e\7\
 Mbackend/src/main/java/com/devsuperior/dscatalog/entities/PasswordRecover.java,7\6\7669180d631ac42690fed3f1762464fcadb5ad8e
 ‹
 [backend/src/main/java/com/devsuperior/dscatalog/repositories/PasswordRecoverRepository.java,9\5\954f09f4922feda6b0ab5d985f691f9b354f686d
+†
+Vbackend/src/main/java/com/devsuperior/dscatalog/dto/request/NewPasswordRequestDTO.java,d\1\d131459dfc9411de6f6b1db75d9ec19e59fbd958

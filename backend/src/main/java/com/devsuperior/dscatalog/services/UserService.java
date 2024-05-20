@@ -36,6 +36,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
     @Transactional(readOnly = true)
     public Page<UserResponseDTO> findAllPaged(Pageable page) {
@@ -119,5 +120,9 @@ public class UserService implements UserDetailsService {
         }
 
         return user;
+    }
+
+    public UserResponseDTO findMe() {
+        return authService.authenticated();
     }
 }

@@ -5,6 +5,7 @@ import com.devsuperior.dscatalog.dto.request.UserRequestUpdateDTO;
 import com.devsuperior.dscatalog.dto.response.UserResponseDTO;
 import com.devsuperior.dscatalog.services.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,12 +19,9 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/users")
+@RequiredArgsConstructor
 public class UserResource {
     private final UserService service;
-
-    public UserResource(UserService service) {
-        this.service = service;
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -38,7 +36,13 @@ public class UserResource {
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
-    
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    @GetMapping(value = "/me")
+    public ResponseEntity<UserResponseDTO> findMe() {
+        return ResponseEntity.ok().body(service.findMe());
+    }
+
     @PostMapping
     public ResponseEntity<UserResponseDTO> save(@Valid @RequestBody UserRequestInsertDTO payload) {
         UserResponseDTO response = service.save(payload);
