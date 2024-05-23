@@ -4,29 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ad1073fc-557f-4c95-a3c7-f167c12222fa" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/config/S3Config.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/FileRequestDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/FileResponseDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/S3Service.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/565654abc34aaab5f921a8446b750b7bef9dbc7a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/c515f05faf9298b360b54df71d5cfe6df15890a2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/e541c25c5c74af88a84da3edf05ce98b438d406a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/7/c7a40e27587775089522f7c0a1c004c6858c0b61" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/7/c7a40e27587775089522f7c0a1c004c6858c0b61" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" afterDir="false" />
-    </list>
+    <list default="true" id="ad1073fc-557f-4c95-a3c7-f167c12222fa" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -262,7 +240,7 @@
       <workItem from="1716203517427" duration="5090000" />
       <workItem from="1716379751284" duration="2851000" />
       <workItem from="1716398401848" duration="5000" />
-      <workItem from="1716473878466" duration="3355000" />
+      <workItem from="1716473878466" duration="3702000" />
     </task>
     <servers />
   </component>
