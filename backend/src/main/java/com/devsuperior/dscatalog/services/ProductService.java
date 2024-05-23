@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.services;
 
 import com.devsuperior.dscatalog.dto.request.ProductRequestDTO;
+import com.devsuperior.dscatalog.dto.response.FileResponseDTO;
 import com.devsuperior.dscatalog.dto.response.ProductResponseDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
@@ -21,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +35,9 @@ import java.util.Set;
 public class ProductService {
     private final ProductRepository repository;
     private final CategoryRepository categoryRepository;
+    private final S3Service s3Service;
 
-    @SuppressWarnings("unchecked")
+
     @Transactional(readOnly = true)
     public Page<ProductResponseDTO> findAllPaged(String categoryId, String name, Pageable pageable) {
         String[] ids = categoryId.split(",");
@@ -96,6 +100,11 @@ public class ProductService {
         }
     }
 
+    public FileResponseDTO uploadFile(MultipartFile file) {
+        URL url = s3Service.uploadFile(file);
+        return new FileResponseDTO(url.toString());
+    }
+
 
     private Set<Category> getCategoriesList(ProductRequestDTO payload) {
         Set<Category> categories = new HashSet<>();
@@ -106,5 +115,4 @@ public class ProductService {
 
         return categories;
     }
-
 }

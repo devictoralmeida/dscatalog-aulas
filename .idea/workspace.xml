@@ -5,18 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad1073fc-557f-4c95-a3c7-f167c12222fa" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/NewPasswordRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/1/c1538c03c3bcc3ded706312a07912cbbb8931b80" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/4/c4e543c554b99ccccd987f50a97bdc2adf2ccccf" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/config/S3Config.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/request/FileRequestDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/dto/response/FileResponseDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/S3Service.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/565654abc34aaab5f921a8446b750b7bef9dbc7a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/c515f05faf9298b360b54df71d5cfe6df15890a2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/e541c25c5c74af88a84da3edf05ce98b438d406a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_14_05_2024_09_09__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/5/853c47ffda38eec540f7b020e897b186d54ab1e7" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/7/c7a40e27587775089522f7c0a1c004c6858c0b61" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/7/c7a40e27587775089522f7c0a1c004c6858c0b61" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/c/1/c1538c03c3bcc3ded706312a07912cbbb8931b80" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/c/4/c4e543c554b99ccccd987f50a97bdc2adf2ccccf" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/PasswordRecoverRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/repositories/PasswordRecoverRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/AuthResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/AuthResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/UserResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/ProductResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/resources/exceptions/ResourceExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/devsuperior/dscatalog/services/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/resources/ProductResourceTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/devsuperior/dscatalog/services/ProductServiceTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,7 +176,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ProductServiceIT" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ProductServiceTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="dscatalog" />
       <extension name="coverage">
         <pattern>
@@ -176,7 +185,7 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.devsuperior.dscatalog.services" />
-      <option name="MAIN_CLASS_NAME" value="com.devsuperior.dscatalog.services.ProductServiceIT" />
+      <option name="MAIN_CLASS_NAME" value="com.devsuperior.dscatalog.services.ProductServiceTests" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -184,8 +193,12 @@
     </configuration>
     <configuration name="DscatalogApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <envs>
-        <env name="EMAIL_USERNAME" value="victoremmanuelmn@gmail.com" />
+        <env name="AWS_KEY" value="AKIAU77YO4LB5B2CA7MB" />
+        <env name="AWS_SECRET" value="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" />
+        <env name="DSCATALOG_BUCKET_NAME" value="dscatalog" />
+        <env name="DSCATALOG_BUCKET_REGION" value="sa-east-1" />
         <env name="EMAIL_PASSWORD" value="fafdstbootjudxqu" />
+        <env name="EMAIL_USERNAME" value="victoremmanuelmn@gmail.com" />
       </envs>
       <module name="dscatalog" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.devsuperior.dscatalog.DscatalogApplication" />
@@ -198,16 +211,16 @@
       <item itemvalue="JUnit.ProductResourceIT.findAllShouldReturnSortedPageWhenSortByName" />
       <item itemvalue="JUnit.ProductResourceIT.updateShouldReturnProductDTOWhenIdExists" />
       <item itemvalue="JUnit.ProductResourceTests" />
-      <item itemvalue="JUnit.ProductServiceIT" />
+      <item itemvalue="JUnit.ProductServiceTests" />
       <item itemvalue="Spring Boot.DscatalogApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ProductServiceTests" />
         <item itemvalue="JUnit.ProductResourceIT" />
         <item itemvalue="JUnit.ProductResourceTests" />
         <item itemvalue="JUnit.ProductResourceIT.updateShouldReturnProductDTOWhenIdExists" />
         <item itemvalue="JUnit.ProductResourceIT.findAllShouldReturnSortedPageWhenSortByName" />
-        <item itemvalue="JUnit.ProductServiceIT" />
       </list>
     </recent_temporary>
   </component>
@@ -246,7 +259,10 @@
       <workItem from="1715729032589" duration="3092000" />
       <workItem from="1715798429052" duration="13821000" />
       <workItem from="1716203326059" duration="81000" />
-      <workItem from="1716203517427" duration="1904000" />
+      <workItem from="1716203517427" duration="5090000" />
+      <workItem from="1716379751284" duration="2851000" />
+      <workItem from="1716398401848" duration="5000" />
+      <workItem from="1716473878466" duration="3355000" />
     </task>
     <servers />
   </component>

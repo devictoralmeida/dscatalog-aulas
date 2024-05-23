@@ -106,7 +106,7 @@ class ProductServiceTests {
     @Test
     void find_all_paged_should_return_page() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductResponseDTO> result = service.findAllPaged(pageable);
+        Page<ProductResponseDTO> result = service.findAllPaged("1, 2", "", pageable);
 
         // Verifica se o resultado não é nulo e se o método do depository foi chamado 1x
         assertNotNull(result);

@@ -56,7 +56,7 @@ class ProductResourceTests {
         // Instanciando uma página de productDTO
         page = new PageImpl<>(List.of(productDTO));
 
-        when(service.findAllPaged(any())).thenReturn(page);
+        when(service.findAllPaged(any(), any(), any())).thenReturn(page);
         when(service.save(any())).thenReturn(productDTO);
         when(service.findById(existingId)).thenReturn(productDTO);
         when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
